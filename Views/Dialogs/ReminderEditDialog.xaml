@@ -1,0 +1,123 @@
+<Window x:Class="PixelDogReminders.Views.Dialogs.ReminderEditDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Configure Reminder"
+        Width="460"
+        Height="620"
+        WindowStartupLocation="CenterOwner"
+        ResizeMode="NoResize"
+        Background="#FAF7F2">
+
+    <Window.Resources>
+        <FontFamily x:Key="PixelFont">pack://application:,,,/Assets/Fonts/#Press Start 2P</FontFamily>
+
+        <Style x:Key="PixelLabelStyle" TargetType="TextBlock">
+            <Setter Property="FontFamily" Value="{StaticResource PixelFont}" />
+            <Setter Property="FontSize" Value="9" />
+            <Setter Property="Foreground" Value="#5A3E2B" />
+            <Setter Property="Margin" Value="0,10,0,4" />
+        </Style>
+
+        <Style x:Key="PixelTextBoxStyle" TargetType="TextBox">
+            <Setter Property="Padding" Value="8,6" />
+            <Setter Property="BorderBrush" Value="#8D6E57" />
+            <Setter Property="BorderThickness" Value="2" />
+            <Setter Property="Background" Value="#FFFFFF" />
+            <Setter Property="FontSize" Value="13" />
+        </Style>
+    </Window.Resources>
+
+    <Grid Margin="18">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <!-- Header -->
+        <TextBlock Text="REMINDER DETAILS"
+                   FontFamily="{StaticResource PixelFont}"
+                   FontSize="12"
+                   Foreground="#3D271D"
+                   FontWeight="Bold"
+                   HorizontalAlignment="Center"
+                   Margin="0,0,0,14" />
+
+        <!-- Form Fields Scrollable -->
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+            <StackPanel Margin="0,0,10,0">
+
+                <!-- Name -->
+                <TextBlock Text="NAME" Style="{StaticResource PixelLabelStyle}" />
+                <TextBox x:Name="TxtName" Style="{StaticResource PixelTextBoxStyle}" />
+
+                <!-- Message -->
+                <TextBlock Text="MESSAGE (HINDI / ENGLISH COPY)" Style="{StaticResource PixelLabelStyle}" />
+                <TextBox x:Name="TxtMessage" Style="{StaticResource PixelTextBoxStyle}" />
+
+                <!-- Character Variant Picker with Live Preview -->
+                <TextBlock Text="COMPANION SPRITE" Style="{StaticResource PixelLabelStyle}" />
+                <Grid Margin="0,4,0,8">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="100" />
+                    </Grid.ColumnDefinitions>
+
+                    <ComboBox x:Name="CmbVariant"
+                              Height="36"
+                              VerticalContentAlignment="Center"
+                              SelectionChanged="CmbVariant_SelectionChanged" />
+
+                    <!-- Live Preview Thumbnail -->
+                    <Border Grid.Column="1"
+                            BorderBrush="#8D6E57"
+                            BorderThickness="2"
+                            Background="#FFF8E7"
+                            Margin="10,0,0,0"
+                            Height="80"
+                            Width="80"
+                            HorizontalAlignment="Center">
+                        <Image x:Name="ImgVariantPreview"
+                               Width="70"
+                               Height="70"
+                               RenderOptions.BitmapScalingMode="NearestNeighbor" />
+                    </Border>
+                </Grid>
+
+                <!-- Trigger Mode -->
+                <TextBlock Text="TRIGGER TYPE" Style="{StaticResource PixelLabelStyle}" />
+                <StackPanel Orientation="Horizontal" Margin="0,4,0,8">
+                    <RadioButton x:Name="RbFixedTimes" Content="Fixed Time(s)" IsChecked="True" Checked="TriggerType_Changed" Margin="0,0,16,0" />
+                    <RadioButton x:Name="RbInterval" Content="Interval (Every X min)" Checked="TriggerType_Changed" />
+                </StackPanel>
+
+                <!-- Fixed Times Section -->
+                <StackPanel x:Name="PnlFixedTimes">
+                    <TextBlock Text="TIME SLOTS (HH:MM)" Style="{StaticResource PixelLabelStyle}" />
+                    <ListBox x:Name="LstTimeSlots" Height="90" SelectionMode="Single" Margin="0,0,0,6" />
+                    <StackPanel Orientation="Horizontal">
+                        <TextBox x:Name="TxtNewTime" Width="90" Style="{StaticResource PixelTextBoxStyle}" Text="12:00" Margin="0,0,8,0" />
+                        <Button Content="+ Add Time" Click="BtnAddTime_Click" Padding="10,4" Margin="0,0,8,0" />
+                        <Button Content="- Remove" Click="BtnRemoveTime_Click" Padding="10,4" />
+                    </StackPanel>
+                </StackPanel>
+
+                <!-- Interval Section -->
+                <StackPanel x:Name="PnlInterval" Visibility="Collapsed">
+                    <TextBlock Text="INTERVAL (MINUTES)" Style="{StaticResource PixelLabelStyle}" />
+                    <TextBox x:Name="TxtIntervalMinutes" Text="120" Style="{StaticResource PixelTextBoxStyle}" />
+                </StackPanel>
+
+                <!-- Enabled Checkbox -->
+                <CheckBox x:Name="ChkEnabled" Content="Enabled" IsChecked="True" Margin="0,14,0,0" FontWeight="Bold" />
+
+            </StackPanel>
+        </ScrollViewer>
+
+        <!-- Actions -->
+        <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,14,0,0">
+            <Button Content="Cancel" Click="BtnCancel_Click" Width="90" Height="32" Margin="0,0,10,0" />
+            <Button Content="Save" Click="BtnSave_Click" Width="90" Height="32" Background="#D4EDDA" FontWeight="Bold" />
+        </StackPanel>
+    </Grid>
+</Window>

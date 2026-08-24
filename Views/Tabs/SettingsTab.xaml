@@ -1,0 +1,206 @@
+<UserControl x:Class="PixelDogReminders.Views.Tabs.SettingsTab"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" 
+             d:DesignHeight="560" d:DesignWidth="680">
+
+    <UserControl.Resources>
+        <FontFamily x:Key="PixelFont">pack://application:,,,/Assets/Fonts/#Press Start 2P</FontFamily>
+
+        <Style x:Key="PixelSectionHeader" TargetType="TextBlock">
+            <Setter Property="FontFamily" Value="{StaticResource PixelFont}" />
+            <Setter Property="FontSize" Value="9" />
+            <Setter Property="Foreground" Value="#5A3E2B" />
+            <Setter Property="FontWeight" Value="Bold" />
+            <Setter Property="TextWrapping" Value="Wrap" />
+            <Setter Property="Margin" Value="0,0,0,8" />
+        </Style>
+
+        <Style x:Key="PixelButtonStyle" TargetType="Button">
+            <Setter Property="FontFamily" Value="{StaticResource PixelFont}" />
+            <Setter Property="FontSize" Value="8" />
+            <Setter Property="Foreground" Value="#2D1E14" />
+            <Setter Property="Background" Value="#FFF8E7" />
+            <Setter Property="BorderBrush" Value="#8D6E57" />
+            <Setter Property="BorderThickness" Value="2" />
+            <Setter Property="Padding" Value="12,8" />
+            <Setter Property="Cursor" Value="Hand" />
+        </Style>
+
+        <Style x:Key="SettingsCard" TargetType="Border">
+            <Setter Property="Background" Value="#FFFFFF" />
+            <Setter Property="BorderBrush" Value="#E0D6CC" />
+            <Setter Property="BorderThickness" Value="2" />
+            <Setter Property="CornerRadius" Value="4" />
+            <Setter Property="Padding" Value="16,14" />
+            <Setter Property="Margin" Value="0,0,0,12" />
+        </Style>
+    </UserControl.Resources>
+
+    <Grid Margin="16">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <ScrollViewer Grid.Row="0" VerticalScrollBarVisibility="Auto">
+            <StackPanel Margin="0,0,6,0">
+
+                <!-- 1. Screen Position Picker -->
+                <Border Style="{StaticResource SettingsCard}">
+                    <StackPanel>
+                        <TextBlock Text="REMINDER POPUP SCREEN POSITION" Style="{StaticResource PixelSectionHeader}" />
+                        <TextBlock Text="Choose which corner or edge of your screen the dog companion slides onto:"
+                                   FontSize="11"
+                                   Foreground="#666666"
+                                   TextWrapping="Wrap"
+                                   Margin="0,0,0,12" />
+
+                        <!-- 2x3 Grid of Radio Buttons -->
+                        <Grid Margin="0,4,0,4">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                            </Grid.RowDefinitions>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+
+                            <RadioButton x:Name="RbTopLeft" Grid.Row="0" Grid.Column="0" Content="Top Left" Margin="0,4,8,4" Checked="Position_Changed" />
+                            <RadioButton x:Name="RbTopCenter" Grid.Row="0" Grid.Column="1" Content="Top Center" Margin="0,4,8,4" Checked="Position_Changed" />
+                            <RadioButton x:Name="RbTopRight" Grid.Row="0" Grid.Column="2" Content="Top Right" Margin="0,4,0,4" Checked="Position_Changed" />
+
+                            <RadioButton x:Name="RbBottomLeft" Grid.Row="1" Grid.Column="0" Content="Bottom Left" Margin="0,4,8,4" Checked="Position_Changed" />
+                            <RadioButton x:Name="RbBottomCenter" Grid.Row="1" Grid.Column="1" Content="Bottom Center" Margin="0,4,8,4" Checked="Position_Changed" />
+                            <RadioButton x:Name="RbBottomRight" Grid.Row="1" Grid.Column="2" Content="Bottom Right (Default)" Margin="0,4,0,4" IsChecked="True" Checked="Position_Changed" />
+                        </Grid>
+                    </StackPanel>
+                </Border>
+
+                <!-- 2. Snooze Duration -->
+                <Border Style="{StaticResource SettingsCard}">
+                    <StackPanel>
+                        <TextBlock Text="SNOOZE DURATION" Style="{StaticResource PixelSectionHeader}" />
+                        <TextBlock Text="How many minutes before a snoozed reminder re-alerts you:"
+                                   FontSize="11"
+                                   Foreground="#666666"
+                                   TextWrapping="Wrap"
+                                   Margin="0,0,0,10" />
+
+                        <ComboBox x:Name="CmbSnooze" Width="180" Height="32" HorizontalAlignment="Left" SelectionChanged="CmbSnooze_SelectionChanged">
+                            <ComboBoxItem Content="2 minutes" Tag="2" />
+                            <ComboBoxItem Content="5 minutes (Default)" Tag="5" IsSelected="True" />
+                            <ComboBoxItem Content="10 minutes" Tag="10" />
+                            <ComboBoxItem Content="15 minutes" Tag="15" />
+                            <ComboBoxItem Content="30 minutes" Tag="30" />
+                        </ComboBox>
+                    </StackPanel>
+                </Border>
+
+                <!-- 3. Windows Startup & Morning Walk-In Settings -->
+                <Border Style="{StaticResource SettingsCard}">
+                    <StackPanel>
+                        <TextBlock Text="STARTUP &amp; MORNING GREETING" Style="{StaticResource PixelSectionHeader}" />
+                        <TextBlock Text="Automate your desktop companion on laptop startup and morning wakeups:"
+                                   FontSize="11"
+                                   Foreground="#666666"
+                                   TextWrapping="Wrap"
+                                   Margin="0,0,0,10" />
+
+                        <CheckBox x:Name="ChkLaunchOnStartup"
+                                  Content="Launch Pixel Dog automatically when Windows starts (Enabled by default)"
+                                  FontWeight="SemiBold"
+                                  IsChecked="True"
+                                  Margin="0,0,0,8"
+                                  Checked="ChkLaunchOnStartup_Changed"
+                                  Unchecked="ChkLaunchOnStartup_Changed" />
+
+                        <CheckBox x:Name="ChkStartupGreeting"
+                                  Content="Perform animated walk-in greeting once per morning (6:00 AM – 11:59 AM)"
+                                  FontWeight="SemiBold"
+                                  IsChecked="True"
+                                  Checked="ChkStartupGreeting_Changed"
+                                  Unchecked="ChkStartupGreeting_Changed" />
+                    </StackPanel>
+                </Border>
+
+                <!-- 4. Football-Data.org API Key -->
+                <Border Style="{StaticResource SettingsCard}">
+                    <StackPanel>
+                        <TextBlock Text="BARCELONA MATCHES API KEY (OPTIONAL)" Style="{StaticResource PixelSectionHeader}" />
+                        <TextBlock Text="Enter your free API token from football-data.org to load live Barca fixtures into the Matches tab:"
+                                   FontSize="11"
+                                   Foreground="#666666"
+                                   TextWrapping="Wrap"
+                                   Margin="0,0,0,8" />
+
+                        <Grid Margin="0,4,0,0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+
+                            <TextBox x:Name="TxtApiKey"
+                                     Padding="8,6"
+                                     BorderBrush="#8D6E57"
+                                     BorderThickness="2"
+                                     HorizontalAlignment="Stretch"
+                                     FontSize="12" />
+
+                            <Button Grid.Column="1"
+                                    Content="Save Key"
+                                    Style="{StaticResource PixelButtonStyle}"
+                                    Margin="10,0,0,0"
+                                    Click="BtnSaveApiKey_Click" />
+                        </Grid>
+                    </StackPanel>
+                </Border>
+
+                <!-- 5. Test Notification Button -->
+                <Border Style="{StaticResource SettingsCard}">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+
+                        <StackPanel Margin="0,0,10,0" VerticalAlignment="Center">
+                            <TextBlock Text="PREVIEW COMPANION POPUP" Style="{StaticResource PixelSectionHeader}" />
+                            <TextBlock Text="Trigger a live test popup on your screen right now."
+                                       FontSize="11"
+                                       Foreground="#666666"
+                                       TextWrapping="Wrap" />
+                        </StackPanel>
+
+                        <Button Grid.Column="1"
+                                Content="Test Popup 🐶"
+                                Style="{StaticResource PixelButtonStyle}"
+                                Background="#FFE8D6"
+                                Click="BtnTestPopup_Click"
+                                VerticalAlignment="Center" />
+                    </Grid>
+                </Border>
+
+            </StackPanel>
+        </ScrollViewer>
+
+        <!-- Footer: "made for abhishek" -->
+        <Border Grid.Row="1"
+                Background="#F5EFE6"
+                BorderBrush="#D0C4B8"
+                BorderThickness="1"
+                CornerRadius="3"
+                Padding="10,8"
+                Margin="0,8,0,0">
+            <TextBlock Text="♥ made for abhishek ♥"
+                       FontFamily="{StaticResource PixelFont}"
+                       FontSize="9"
+                       Foreground="#9E5B23"
+                       HorizontalAlignment="Center" />
+        </Border>
+    </Grid>
+</UserControl>
