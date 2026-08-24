@@ -112,7 +112,7 @@ public partial class MainWindow : Window
     {
         _notifyIcon = new Forms.NotifyIcon
         {
-            Text = "Pixel Dog Reminders",
+            Text = "Oye Dog",
             Visible = true
         };
 
@@ -138,7 +138,7 @@ public partial class MainWindow : Window
         // Context Menu
         var contextMenu = new Forms.ContextMenuStrip();
 
-        var openItem = new Forms.ToolStripMenuItem("Open Pixel Dog", null, (s, e) => ShowAndRestore());
+        var openItem = new Forms.ToolStripMenuItem("Open Oye Dog", null, (s, e) => ShowAndRestore());
         openItem.Font = new Font(openItem.Font, System.Drawing.FontStyle.Bold);
 
         _pauseMenuItem = new Forms.ToolStripMenuItem("Pause Reminders", null, (s, e) =>
@@ -188,7 +188,7 @@ public partial class MainWindow : Window
         {
             e.Cancel = true;
             Hide();
-            _notifyIcon?.ShowBalloonTip(2000, "Pixel Dog Reminders", "Still running in your system tray! Reminders & morning greetings will continue.", Forms.ToolTipIcon.Info);
+            _notifyIcon?.ShowBalloonTip(2000, "Oye Dog", "Still running in your system tray! Reminders & morning greetings will continue.", Forms.ToolTipIcon.Info);
         }
         else
         {

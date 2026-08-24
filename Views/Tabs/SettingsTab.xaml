@@ -112,7 +112,7 @@
                                    Margin="0,0,0,10" />
 
                         <CheckBox x:Name="ChkLaunchOnStartup"
-                                  Content="Launch Pixel Dog automatically when Windows starts (Enabled by default)"
+                                  Content="Launch Oye Dog automatically when Windows starts (Enabled by default)"
                                   FontWeight="SemiBold"
                                   IsChecked="True"
                                   Margin="0,0,0,8"

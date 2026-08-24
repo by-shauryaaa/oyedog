@@ -1,7 +1,7 @@
 <Window x:Class="PixelDogReminders.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Pixel Dog Reminders — Abhishek's Companion"
+        Title="Oye Dog — Abhishek's Companion"
         Width="780"
         Height="640"
         MinWidth="720"
@@ -73,7 +73,7 @@
                        RenderOptions.BitmapScalingMode="NearestNeighbor" />
 
                 <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="0,0,12,0">
-                    <TextBlock Text="PIXEL DOG REMINDERS"
+                    <TextBlock Text="OYE DOG"
                                FontFamily="{StaticResource PixelFont}"
                                FontSize="11"
                                Foreground="#FFD700"
