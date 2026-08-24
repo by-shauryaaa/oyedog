@@ -70,13 +70,13 @@
                                 <ColumnDefinition Width="*" />
                             </Grid.ColumnDefinitions>
 
-                            <RadioButton x:Name="RbTopLeft" Grid.Row="0" Grid.Column="0" Content="Top Left" Margin="0,4,8,4" Checked="Position_Changed" />
-                            <RadioButton x:Name="RbTopCenter" Grid.Row="0" Grid.Column="1" Content="Top Center" Margin="0,4,8,4" Checked="Position_Changed" />
-                            <RadioButton x:Name="RbTopRight" Grid.Row="0" Grid.Column="2" Content="Top Right" Margin="0,4,0,4" Checked="Position_Changed" />
+                            <RadioButton x:Name="RbTopLeft" GroupName="PopupPositionGroup" Grid.Row="0" Grid.Column="0" Content="Top Left" Margin="0,4,8,4" Checked="Position_Changed" />
+                            <RadioButton x:Name="RbTopCenter" GroupName="PopupPositionGroup" Grid.Row="0" Grid.Column="1" Content="Top Center" Margin="0,4,8,4" Checked="Position_Changed" />
+                            <RadioButton x:Name="RbTopRight" GroupName="PopupPositionGroup" Grid.Row="0" Grid.Column="2" Content="Top Right" Margin="0,4,0,4" Checked="Position_Changed" />
 
-                            <RadioButton x:Name="RbBottomLeft" Grid.Row="1" Grid.Column="0" Content="Bottom Left" Margin="0,4,8,4" Checked="Position_Changed" />
-                            <RadioButton x:Name="RbBottomCenter" Grid.Row="1" Grid.Column="1" Content="Bottom Center" Margin="0,4,8,4" Checked="Position_Changed" />
-                            <RadioButton x:Name="RbBottomRight" Grid.Row="1" Grid.Column="2" Content="Bottom Right (Default)" Margin="0,4,0,4" IsChecked="True" Checked="Position_Changed" />
+                            <RadioButton x:Name="RbBottomLeft" GroupName="PopupPositionGroup" Grid.Row="1" Grid.Column="0" Content="Bottom Left" Margin="0,4,8,4" Checked="Position_Changed" />
+                            <RadioButton x:Name="RbBottomCenter" GroupName="PopupPositionGroup" Grid.Row="1" Grid.Column="1" Content="Bottom Center" Margin="0,4,8,4" Checked="Position_Changed" />
+                            <RadioButton x:Name="RbBottomRight" GroupName="PopupPositionGroup" Grid.Row="1" Grid.Column="2" Content="Bottom Right (Default)" Margin="0,4,0,4" IsChecked="True" Checked="Position_Changed" />
                         </Grid>
                     </StackPanel>
                 </Border>

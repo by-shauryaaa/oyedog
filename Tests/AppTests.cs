@@ -1,3 +1,4 @@
+using System.IO;
 using PixelDogReminders.Models;
 using PixelDogReminders.Services;
 using Xunit;
@@ -87,44 +88,53 @@ public class AppTests
         Assert.Equal(5, settings.SnoozeDurationMinutes);
         Assert.True(settings.MatchRemindersEnabled);
         Assert.True(settings.StartupGreetingEnabled);
+        Assert.True(settings.LaunchOnStartup);
         Assert.Null(settings.LastWalkInDate);
     }
 
     [Fact]
     public void PersistenceService_SaveAndLoad_RoundTrip()
     {
-        var service = new PersistenceService();
-        var settings = new AppSettings
+        var tempFile = Path.Combine(Path.GetTempPath(), $"test_config_{Guid.NewGuid()}.json");
+        try
         {
-            Position = PopupPosition.TopLeft,
-            SnoozeDurationMinutes = 10,
-            MatchRemindersEnabled = false,
-            StartupGreetingEnabled = true
-        };
-
-        var reminders = new List<ReminderModel>
-        {
-            new()
+            var service = new PersistenceService(tempFile);
+            var settings = new AppSettings
             {
-                Id = Guid.NewGuid(),
-                Name = "Custom Test",
-                Message = "test message",
-                Variant = SpriteVariant.Rest,
-                TimeSlots = new List<string> { "12:34" },
-                IsEnabled = true
-            }
-        };
+                Position = PopupPosition.TopLeft,
+                SnoozeDurationMinutes = 10,
+                MatchRemindersEnabled = false,
+                StartupGreetingEnabled = true
+            };
 
-        service.SaveData(settings, reminders);
+            var reminders = new List<ReminderModel>
+            {
+                new()
+                {
+                    Id = Guid.NewGuid(),
+                    Name = "Custom Test",
+                    Message = "test message",
+                    Variant = SpriteVariant.Rest,
+                    TimeSlots = new List<string> { "12:34" },
+                    IsEnabled = true
+                }
+            };
 
-        var (loadedSettings, loadedReminders) = service.LoadData();
+            service.SaveData(settings, reminders);
 
-        Assert.Equal(PopupPosition.TopLeft, loadedSettings.Position);
-        Assert.Equal(10, loadedSettings.SnoozeDurationMinutes);
-        Assert.False(loadedSettings.MatchRemindersEnabled);
-        Assert.True(loadedSettings.StartupGreetingEnabled);
+            var (loadedSettings, loadedReminders) = service.LoadData();
 
-        Assert.Contains(loadedReminders, r => r.Name == "Custom Test" && r.Message == "test message");
+            Assert.Equal(PopupPosition.TopLeft, loadedSettings.Position);
+            Assert.Equal(10, loadedSettings.SnoozeDurationMinutes);
+            Assert.False(loadedSettings.MatchRemindersEnabled);
+            Assert.True(loadedSettings.StartupGreetingEnabled);
+
+            Assert.Contains(loadedReminders, r => r.Name == "Custom Test" && r.Message == "test message");
+        }
+        finally
+        {
+            if (File.Exists(tempFile)) File.Delete(tempFile);
+        }
     }
 
     [Fact]
@@ -150,51 +160,83 @@ public class AppTests
     [Fact]
     public void ShouldShowWalkIn_MorningAndNewDay_ReturnsTrue()
     {
-        var service = new PersistenceService();
-        var (settings, reminders) = service.LoadData();
-        settings.StartupGreetingEnabled = true;
-        settings.LastWalkInDate = DateTime.Today.AddDays(-1); // Yesterday
-        service.SaveData(settings, reminders);
+        var tempFile = Path.Combine(Path.GetTempPath(), $"test_config_{Guid.NewGuid()}.json");
+        try
+        {
+            var service = new PersistenceService(tempFile);
+            var (settings, reminders) = service.LoadData();
+            settings.StartupGreetingEnabled = true;
+            settings.LastWalkInDate = DateTime.Today.AddDays(-1); // Yesterday
+            service.SaveData(settings, reminders);
 
-        var morningTime = new DateTime(2026, 8, 25, 8, 30, 0); // 8:30 AM
-        Assert.True(service.ShouldShowWalkIn(morningTime));
+            var morningTime = new DateTime(2026, 8, 25, 8, 30, 0); // 8:30 AM
+            Assert.True(service.ShouldShowWalkIn(morningTime));
+        }
+        finally
+        {
+            if (File.Exists(tempFile)) File.Delete(tempFile);
+        }
     }
 
     [Fact]
     public void ShouldShowWalkIn_AlreadyShownToday_ReturnsFalse()
     {
-        var service = new PersistenceService();
-        var (settings, reminders) = service.LoadData();
-        settings.StartupGreetingEnabled = true;
-        settings.LastWalkInDate = new DateTime(2026, 8, 25, 7, 0, 0); // Already ran today
-        service.SaveData(settings, reminders);
+        var tempFile = Path.Combine(Path.GetTempPath(), $"test_config_{Guid.NewGuid()}.json");
+        try
+        {
+            var service = new PersistenceService(tempFile);
+            var (settings, reminders) = service.LoadData();
+            settings.StartupGreetingEnabled = true;
+            settings.LastWalkInDate = new DateTime(2026, 8, 25, 7, 0, 0); // Already ran today
+            service.SaveData(settings, reminders);
 
-        var morningTime = new DateTime(2026, 8, 25, 9, 30, 0);
-        Assert.False(service.ShouldShowWalkIn(morningTime));
+            var morningTime = new DateTime(2026, 8, 25, 9, 30, 0);
+            Assert.False(service.ShouldShowWalkIn(morningTime));
+        }
+        finally
+        {
+            if (File.Exists(tempFile)) File.Delete(tempFile);
+        }
     }
 
     [Fact]
     public void ShouldShowWalkIn_EveningHour_ReturnsFalse()
     {
-        var service = new PersistenceService();
-        var (settings, reminders) = service.LoadData();
-        settings.StartupGreetingEnabled = true;
-        settings.LastWalkInDate = DateTime.Today.AddDays(-1);
-        service.SaveData(settings, reminders);
+        var tempFile = Path.Combine(Path.GetTempPath(), $"test_config_{Guid.NewGuid()}.json");
+        try
+        {
+            var service = new PersistenceService(tempFile);
+            var (settings, reminders) = service.LoadData();
+            settings.StartupGreetingEnabled = true;
+            settings.LastWalkInDate = DateTime.Today.AddDays(-1);
+            service.SaveData(settings, reminders);
 
-        var eveningTime = new DateTime(2026, 8, 25, 15, 0, 0); // 3:00 PM (afternoon/evening)
-        Assert.False(service.ShouldShowWalkIn(eveningTime));
+            var eveningTime = new DateTime(2026, 8, 25, 15, 0, 0); // 3:00 PM (afternoon/evening)
+            Assert.False(service.ShouldShowWalkIn(eveningTime));
+        }
+        finally
+        {
+            if (File.Exists(tempFile)) File.Delete(tempFile);
+        }
     }
 
     [Fact]
     public void ShouldShowWalkIn_DisabledSetting_ReturnsFalse()
     {
-        var service = new PersistenceService();
-        var (settings, reminders) = service.LoadData();
-        settings.StartupGreetingEnabled = false;
-        service.SaveData(settings, reminders);
+        var tempFile = Path.Combine(Path.GetTempPath(), $"test_config_{Guid.NewGuid()}.json");
+        try
+        {
+            var service = new PersistenceService(tempFile);
+            var (settings, reminders) = service.LoadData();
+            settings.StartupGreetingEnabled = false;
+            service.SaveData(settings, reminders);
 
-        var morningTime = new DateTime(2026, 8, 25, 8, 30, 0);
-        Assert.False(service.ShouldShowWalkIn(morningTime));
+            var morningTime = new DateTime(2026, 8, 25, 8, 30, 0);
+            Assert.False(service.ShouldShowWalkIn(morningTime));
+        }
+        finally
+        {
+            if (File.Exists(tempFile)) File.Delete(tempFile);
+        }
     }
 }

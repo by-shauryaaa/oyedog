@@ -16,9 +16,11 @@ public partial class SettingsTab : WpfControl
 
     public SettingsTab(PersistenceService persistence, PopupService popupService)
     {
-        InitializeComponent();
         _persistence = persistence;
         _popupService = popupService;
+        _isInitializing = true;
+
+        InitializeComponent();
 
         LoadSettings();
         _isInitializing = false;
@@ -26,6 +28,7 @@ public partial class SettingsTab : WpfControl
 
     private void LoadSettings()
     {
+        _isInitializing = true;
         var (settings, _) = _persistence.LoadData();
 
         // Position

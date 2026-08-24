@@ -3,6 +3,7 @@ using System.Windows;
 using PixelDogReminders.Models;
 using PixelDogReminders.Services;
 using WpfControl = System.Windows.Controls.UserControl;
+using WpfMessageBox = System.Windows.MessageBox;
 
 namespace PixelDogReminders.Views.Tabs;
 
@@ -19,19 +20,31 @@ public partial class MatchesTab : WpfControl
         _persistence = persistence;
         _sportsService = sportsService;
         _scheduler = scheduler;
+        _isInitializing = true;
 
-        InitializeComponent(); // safe: _persistence already set before this
+        InitializeComponent();
 
         ItemsSchedule.ItemsSource = _scheduleItems;
 
         var (settings, _) = _persistence.LoadData();
-
-        // Set checkbox without triggering handler
-        _isInitializing = true;
         ChkMasterToggle.IsChecked = settings.MatchRemindersEnabled;
+        UpdateApiKeyPromptVisibility(settings.FootballDataApiKey);
+
         _isInitializing = false;
 
         Loaded += async (s, e) => await LoadScheduleAsync(force: false);
+    }
+
+    private void UpdateApiKeyPromptVisibility(string? apiKey)
+    {
+        if (string.IsNullOrWhiteSpace(apiKey))
+        {
+            PnlApiKeyPrompt.Visibility = Visibility.Visible;
+        }
+        else
+        {
+            PnlApiKeyPrompt.Visibility = Visibility.Collapsed;
+        }
     }
 
     public async Task LoadScheduleAsync(bool force = false)
@@ -43,6 +56,8 @@ public partial class MatchesTab : WpfControl
         try
         {
             var (settings, _) = _persistence.LoadData();
+            UpdateApiKeyPromptVisibility(settings.FootballDataApiKey);
+
             var items = await _sportsService.GetUpcomingScheduleAsync(settings.FootballDataApiKey, force);
 
             _scheduleItems.Clear();
@@ -75,6 +90,26 @@ public partial class MatchesTab : WpfControl
 
     private async void BtnRefresh_Click(object sender, RoutedEventArgs e)
     {
+        await LoadScheduleAsync(force: true);
+        await _scheduler.RefreshSportsDataAsync(force: true);
+    }
+
+    private async void BtnSaveMatchesApiKey_Click(object sender, RoutedEventArgs e)
+    {
+        var key = TxtMatchesApiKey.Text.Trim();
+        if (string.IsNullOrEmpty(key))
+        {
+            WpfMessageBox.Show("Please enter a valid Football-Data.org API key.", "Key Required", MessageBoxButton.OK, MessageBoxImage.Warning);
+            return;
+        }
+
+        var (settings, reminders) = _persistence.LoadData();
+        settings.FootballDataApiKey = key;
+        _persistence.SaveData(settings, reminders);
+
+        PnlApiKeyPrompt.Visibility = Visibility.Collapsed;
+        WpfMessageBox.Show("API Key saved! Loading FC Barcelona fixtures...", "Saved", MessageBoxButton.OK, MessageBoxImage.Information);
+
         await LoadScheduleAsync(force: true);
         await _scheduler.RefreshSportsDataAsync(force: true);
     }

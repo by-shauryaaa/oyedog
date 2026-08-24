@@ -25,6 +25,7 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
 
@@ -60,6 +61,7 @@
                     <CheckBox x:Name="ChkMasterToggle"
                               Content="Match Reminders Active"
                               FontWeight="Bold"
+                              IsChecked="True"
                               VerticalAlignment="Center"
                               Checked="ChkMasterToggle_Changed"
                               Unchecked="ChkMasterToggle_Changed"
@@ -75,9 +77,56 @@
             </Grid>
         </Border>
 
+        <!-- API Key Prompt Banner (shown if API key hasn't been added yet) -->
+        <Border x:Name="PnlApiKeyPrompt"
+                Grid.Row="1"
+                Background="#FFF8E7"
+                BorderBrush="#8D6E57"
+                BorderThickness="2"
+                CornerRadius="4"
+                Padding="14,10"
+                Margin="0,0,0,12"
+                Visibility="Collapsed">
+            <StackPanel>
+                <TextBlock Text="🔑 Add Football-Data.org API Key for Barca Fixtures"
+                           FontFamily="{StaticResource PixelFont}"
+                           FontSize="9"
+                           Foreground="#8B5A2B"
+                           FontWeight="Bold"
+                           TextWrapping="Wrap" />
+                <TextBlock Text="F1 races load automatically without any key. To also view live FC Barcelona match fixtures, paste your free Football-Data.org key below:"
+                           FontSize="11"
+                           Foreground="#5A3E2B"
+                           TextWrapping="Wrap"
+                           Margin="0,4,0,8" />
+
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+
+                    <TextBox x:Name="TxtMatchesApiKey"
+                             Padding="8,6"
+                             BorderBrush="#8D6E57"
+                             BorderThickness="2"
+                             FontSize="11"
+                             VerticalAlignment="Center" />
+
+                    <Button Grid.Column="1"
+                            Content="Save &amp; Load Fixtures"
+                            Style="{StaticResource PixelButtonStyle}"
+                            Background="#E6F4EA"
+                            Margin="10,0,0,0"
+                            Click="BtnSaveMatchesApiKey_Click"
+                            VerticalAlignment="Center" />
+                </Grid>
+            </StackPanel>
+        </Border>
+
         <!-- Loading / Status indicator -->
         <TextBlock x:Name="TxtStatus"
-                   Grid.Row="1"
+                   Grid.Row="2"
                    Text="Updating fixtures &amp; race sessions..."
                    FontSize="11"
                    Foreground="#8D6E57"
@@ -86,7 +135,7 @@
                    Visibility="Collapsed" />
 
         <!-- Cards Feed -->
-        <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto">
+        <ScrollViewer Grid.Row="3" VerticalScrollBarVisibility="Auto">
             <StackPanel>
                 <!-- Empty placeholder -->
                 <Border x:Name="PnlEmptyState"
@@ -103,7 +152,7 @@
                                    Foreground="#5A3E2B"
                                    TextAlignment="Center"
                                    TextWrapping="Wrap" />
-                        <TextBlock Text="Note: Add your free Football-Data.org API key in Settings to view Barcelona fixtures."
+                        <TextBlock Text="Note: Add your free Football-Data.org API key above or in Settings to view Barcelona fixtures."
                                    FontSize="11"
                                    Foreground="#888888"
                                    TextAlignment="Center"

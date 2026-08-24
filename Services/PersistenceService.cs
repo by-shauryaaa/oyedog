@@ -6,13 +6,13 @@ namespace PixelDogReminders.Services;
 
 public class PersistenceService
 {
-    private static readonly string AppDataFolder = Path.Combine(
+    private static readonly string DefaultAppDataFolder = Path.Combine(
         Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
         "PixelDogReminders"
     );
 
-    private static readonly string ConfigFilePath = Path.Combine(AppDataFolder, "config.json");
-    private static readonly string SportsCacheFilePath = Path.Combine(AppDataFolder, "sports_cache.json");
+    private readonly string _configFilePath;
+    private readonly string _sportsCacheFilePath;
 
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
@@ -20,11 +20,21 @@ public class PersistenceService
         PropertyNameCaseInsensitive = true
     };
 
-    public PersistenceService()
+    public PersistenceService(string? customConfigPath = null, string? customCachePath = null)
     {
-        if (!Directory.Exists(AppDataFolder))
+        if (customConfigPath != null)
         {
-            Directory.CreateDirectory(AppDataFolder);
+            _configFilePath = customConfigPath;
+            _sportsCacheFilePath = customCachePath ?? Path.Combine(Path.GetDirectoryName(customConfigPath) ?? ".", "sports_cache.json");
+        }
+        else
+        {
+            if (!Directory.Exists(DefaultAppDataFolder))
+            {
+                Directory.CreateDirectory(DefaultAppDataFolder);
+            }
+            _configFilePath = Path.Combine(DefaultAppDataFolder, "config.json");
+            _sportsCacheFilePath = Path.Combine(DefaultAppDataFolder, "sports_cache.json");
         }
     }
 
@@ -38,11 +48,11 @@ public class PersistenceService
     {
         try
         {
-            if (File.Exists(ConfigFilePath))
+            if (File.Exists(_configFilePath))
             {
-                var json = File.ReadAllText(ConfigFilePath);
+                var json = File.ReadAllText(_configFilePath);
                 var container = JsonSerializer.Deserialize<AppDataContainer>(json, JsonOptions);
-                if (container != null)
+                if (container != null && container.Reminders != null && container.Reminders.Count > 0)
                 {
                     return (container.Settings, container.Reminders);
                 }
@@ -54,7 +64,14 @@ public class PersistenceService
         }
 
         // Default initial data
-        var defaultSettings = new AppSettings();
+        var defaultSettings = new AppSettings
+        {
+            Position = PopupPosition.BottomRight,
+            MatchRemindersEnabled = true,
+            StartupGreetingEnabled = true,
+            LaunchOnStartup = true,
+            SnoozeDurationMinutes = 5
+        };
         var defaultReminders = CreateDefaultReminders();
         SaveData(defaultSettings, defaultReminders);
         return (defaultSettings, defaultReminders);
@@ -64,13 +81,19 @@ public class PersistenceService
     {
         try
         {
+            var dir = Path.GetDirectoryName(_configFilePath);
+            if (!string.IsNullOrEmpty(dir) && !Directory.Exists(dir))
+            {
+                Directory.CreateDirectory(dir);
+            }
+
             var container = new AppDataContainer
             {
                 Settings = settings,
                 Reminders = reminders
             };
             var json = JsonSerializer.Serialize(container, JsonOptions);
-            File.WriteAllText(ConfigFilePath, json);
+            File.WriteAllText(_configFilePath, json);
         }
         catch (Exception ex)
         {
@@ -144,9 +167,9 @@ public class PersistenceService
     {
         try
         {
-            if (File.Exists(SportsCacheFilePath))
+            if (File.Exists(_sportsCacheFilePath))
             {
-                return File.ReadAllText(SportsCacheFilePath);
+                return File.ReadAllText(_sportsCacheFilePath);
             }
         }
         catch
@@ -160,7 +183,12 @@ public class PersistenceService
     {
         try
         {
-            File.WriteAllText(SportsCacheFilePath, json);
+            var dir = Path.GetDirectoryName(_sportsCacheFilePath);
+            if (!string.IsNullOrEmpty(dir) && !Directory.Exists(dir))
+            {
+                Directory.CreateDirectory(dir);
+            }
+            File.WriteAllText(_sportsCacheFilePath, json);
         }
         catch
         {
