@@ -7,7 +7,6 @@
 ## ✨ Features
 
 - **🏠 Home Companion**: Live digital clock, time-aware dynamic greetings, and an interactive pixel dog that loves petting, eating snacks, and strolling across your screen.
-- **🎂 Birthday Easter Egg**: Automatically celebrates August 25 with party hats, animated confetti, and birthday wishes!
 - **⏰ Habit Reminders**: Multi-slot and interval-based reminders (Food, Water, Sleep, Meds, Breaks) with 2-minute neutral auto-dismiss.
 - **⚽🏎️ Sports & Match Alerts**: Real-time 30-day schedule alerts for FC Barcelona fixtures and Formula 1 Grand Prix sessions.
 - **🚶 Morning Walk-In Greeting**: Once per morning (6:00 AM – 11:59 AM), the companion walks across the bottom of the screen to greet you with **Feed** & **Let it be** reactions.
