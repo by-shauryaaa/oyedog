@@ -2,10 +2,8 @@
    🐶 OYE DOG — BIRTHDAY LANDING PAGE SCRIPTS
    ============================================================ */
 
-// ⚙️ CONFIGURATION: Set your custom installer download URL here
-// E.g. "https://github.com/by-shauryaaa/oyedog/releases/download/v1.0.0/OyeDogSetup.exe"
-// Or Google Drive / Dropbox direct download link:
-const DOWNLOAD_URL = "#download";
+// ⚙️ CONFIGURATION: Installer download URL
+const DOWNLOAD_URL = "https://drive.google.com/file/d/1o0qZ8vxxRZ21yw008sOS16XRbpHxCs7u/view?usp=sharing";
 
 // Sprite Configuration
 const SPRITE_CONFIG = {
@@ -46,17 +44,10 @@ function setupDownloadButtons() {
     const downloadBtns = document.querySelectorAll(".btn-download-app");
     downloadBtns.forEach(btn => {
         btn.addEventListener("click", (e) => {
-            if (DOWNLOAD_URL === "#download" || !DOWNLOAD_URL.startsWith("http")) {
+            burstConfetti(e.clientX, e.clientY, 40);
+            if (DOWNLOAD_URL && DOWNLOAD_URL.startsWith("http")) {
+                window.open(DOWNLOAD_URL, "_blank", "noopener,noreferrer");
                 e.preventDefault();
-                // Scroll to guide or prompt if link hasn't been set yet
-                const guideSec = document.getElementById("guide");
-                if (guideSec) {
-                    guideSec.scrollIntoView({ behavior: "smooth" });
-                }
-                burstConfetti(e.clientX, e.clientY, 30);
-                alert("🎉 Happy Birthday Abhishek!\n\nDownload link is ready to be configured. The installer setup file is located at:\npublish/installer/OyeDogSetup.exe (46 MB)");
-            } else {
-                window.location.href = DOWNLOAD_URL;
             }
         });
     });
