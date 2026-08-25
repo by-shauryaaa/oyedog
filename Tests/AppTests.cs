@@ -165,11 +165,11 @@ public class AppTests
         {
             var service = new PersistenceService(tempFile);
             var (settings, reminders) = service.LoadData();
+            var morningTime = new DateTime(2026, 8, 25, 8, 30, 0); // 8:30 AM
             settings.StartupGreetingEnabled = true;
-            settings.LastWalkInDate = DateTime.Today.AddDays(-1); // Yesterday
+            settings.LastWalkInDate = morningTime.Date.AddDays(-1); // Yesterday relative to test time
             service.SaveData(settings, reminders);
 
-            var morningTime = new DateTime(2026, 8, 25, 8, 30, 0); // 8:30 AM
             Assert.True(service.ShouldShowWalkIn(morningTime));
         }
         finally
@@ -186,11 +186,11 @@ public class AppTests
         {
             var service = new PersistenceService(tempFile);
             var (settings, reminders) = service.LoadData();
+            var morningTime = new DateTime(2026, 8, 25, 9, 30, 0);
             settings.StartupGreetingEnabled = true;
-            settings.LastWalkInDate = new DateTime(2026, 8, 25, 7, 0, 0); // Already ran today
+            settings.LastWalkInDate = new DateTime(2026, 8, 25, 7, 0, 0); // Already ran on same date
             service.SaveData(settings, reminders);
 
-            var morningTime = new DateTime(2026, 8, 25, 9, 30, 0);
             Assert.False(service.ShouldShowWalkIn(morningTime));
         }
         finally
@@ -207,11 +207,11 @@ public class AppTests
         {
             var service = new PersistenceService(tempFile);
             var (settings, reminders) = service.LoadData();
+            var eveningTime = new DateTime(2026, 8, 25, 15, 0, 0); // 3:00 PM (afternoon/evening)
             settings.StartupGreetingEnabled = true;
-            settings.LastWalkInDate = DateTime.Today.AddDays(-1);
+            settings.LastWalkInDate = eveningTime.Date.AddDays(-1);
             service.SaveData(settings, reminders);
 
-            var eveningTime = new DateTime(2026, 8, 25, 15, 0, 0); // 3:00 PM (afternoon/evening)
             Assert.False(service.ShouldShowWalkIn(eveningTime));
         }
         finally

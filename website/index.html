@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Oye Dog — Abhishek's Birthday Companion 🎂🐶</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="icon" type="image/png" href="assets/sprites/idle_0.png">
+</head>
+<body>
+
+    <!-- Canvas Confetti Layer -->
+    <canvas id="confetti-canvas"></canvas>
+
+    <!-- Top Navigation Bar -->
+    <header class="top-nav">
+        <div class="container nav-content">
+            <div class="logo-group">
+                <img src="assets/sprites/idle_0.png" alt="Oye Dog Mascot" class="logo-img pixel-art">
+                <span class="logo-text">OYE DOG</span>
+            </div>
+            <div class="nav-badge">
+                ★ BIRTHDAY EDITION ★
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="container">
+
+        <!-- ============================================================
+             1. HERO & BIRTHDAY CELEBRATION
+             ============================================================ -->
+        <section class="hero">
+
+            <!-- Birthday Greeting Banner -->
+            <div class="birthday-banner">
+                <h1>🎂 HAPPY BIRTHDAY ABHISHEK ♥ 🐶</h1>
+                <p>Wishing you a legendary year ahead filled with joy, goals, and fast laps!</p>
+            </div>
+
+            <!-- Dogu Mascot Stage -->
+            <div class="mascot-stage">
+                <!-- Speech Bubble -->
+                <div class="speech-bubble">
+                    <div class="bubble-title">COMPANION GREETING</div>
+                    <div class="bubble-message" id="hero-speech-msg">
+                        🎂 Happy Birthday Abhishek! 🎉 Welcome to your personalized desktop companion!
+                    </div>
+                </div>
+
+                <!-- Animated Dog Mascot -->
+                <div class="dog-box" id="hero-dog-box" title="Click Dogu to pet him / trigger celebration confetti!">
+                    <div class="dog-shadow"></div>
+                    <img id="hero-dog-sprite" src="assets/sprites/birthday_walk_0.png" alt="Dogu Pixel Mascot" class="dog-sprite-img pixel-art">
+                </div>
+                <div class="click-hint">🐾 (Click Dogu to pet him / shower confetti!)</div>
+            </div>
+
+            <!-- Hero Title & CTA -->
+            <h2 class="hero-tagline">YOUR RETRO DESKTOP COMPANION</h2>
+            <p class="hero-description">
+                A personalized habit tracker, sports alert companion, and daily buddy built exclusively for Abhishek with authentic 32×32 pixel art.
+            </p>
+
+            <!-- Download Button -->
+            <div>
+                <a href="#download" class="btn-pixel-primary btn-download-app">
+                    <span>📥</span> DOWNLOAD OYE DOG FOR WINDOWS
+                </a>
+                <div class="download-meta">
+                    📦 Single-File Installer (OyeDogSetup.exe • ~46 MB • Windows 10/11 • No Admin Rights Required)
+                </div>
+            </div>
+        </section>
+
+        <!-- ============================================================
+             2. FEATURE SHOWCASE
+             ============================================================ -->
+        <section class="section" id="features">
+            <div class="section-header">
+                <h3 class="section-title">✨ COMPANION FEATURES</h3>
+                <p class="section-subtitle">Everything your little pixel friend can do on your desktop</p>
+            </div>
+
+            <div class="features-grid">
+
+                <!-- Feature 1: Home Companion -->
+                <div class="feature-card">
+                    <div class="feature-icon-bar">
+                        <span class="feature-emoji">🏠</span>
+                        <span class="feature-tag tag-companion">HOME TAB</span>
+                    </div>
+                    <h4 class="feature-title">Live Clock &amp; Mascot</h4>
+                    <p class="feature-desc">
+                        A real-time digital clock, dynamic greetings based on the time of day, and interactive Feed, Pet, and Walk buttons.
+                    </p>
+                </div>
+
+                <!-- Feature 2: Morning Screen Walk -->
+                <div class="feature-card">
+                    <div class="feature-icon-bar">
+                        <span class="feature-emoji">🚶</span>
+                        <span class="feature-tag tag-walk">DAILY WALK</span>
+                    </div>
+                    <h4 class="feature-title">Morning Walk-In Greeting</h4>
+                    <p class="feature-desc">
+                        Every morning between 6:00 AM – 11:59 AM, Dogu strolls across the bottom of your screen to say good morning with pet-care reactions.
+                    </p>
+                </div>
+
+                <!-- Feature 3: Habit Reminders -->
+                <div class="feature-card">
+                    <div class="feature-icon-bar">
+                        <span class="feature-emoji">⏰</span>
+                        <span class="feature-tag tag-habits">HABIT ALERTS</span>
+                    </div>
+                    <h4 class="feature-title">Habit &amp; Care Popups</h4>
+                    <p class="feature-desc">
+                        Gentle reminders for Sleep (11 PM), Water (every 2h), Food, and custom tasks with a 2-minute neutral auto-dismiss.
+                    </p>
+                </div>
+
+                <!-- Feature 4: Sports & Match Alerts -->
+                <div class="feature-card">
+                    <div class="feature-icon-bar">
+                        <span class="feature-emoji">⚽🏎️</span>
+                        <span class="feature-tag tag-sports">SPORTS HUB</span>
+                    </div>
+                    <h4 class="feature-title">Barca &amp; F1 Match Days</h4>
+                    <p class="feature-desc">
+                        Live 30-day schedules for FC Barcelona fixtures and Formula 1 Grand Prix sessions alerting you right when races and matches begin.
+                    </p>
+                </div>
+
+                <!-- Feature 5: Silent Background Resident -->
+                <div class="feature-card">
+                    <div class="feature-icon-bar">
+                        <span class="feature-emoji">🚀</span>
+                        <span class="feature-tag tag-system">TRAY RESIDENT</span>
+                    </div>
+                    <h4 class="feature-title">Auto-Start &amp; System Tray</h4>
+                    <p class="feature-desc">
+                        Launches quietly to your system tray on laptop startup. Zero background lag, minimal resources, and ready whenever you need him.
+                    </p>
+                </div>
+
+                <!-- Feature 6: Birthday Easter Egg -->
+                <div class="feature-card">
+                    <div class="feature-icon-bar">
+                        <span class="feature-emoji">🎂</span>
+                        <span class="feature-tag tag-companion">EASTER EGG</span>
+                    </div>
+                    <h4 class="feature-title">Birthday Celebration</h4>
+                    <p class="feature-desc">
+                        Every August 25, Dogu puts on his colorful party hat and showers celebratory confetti across your screen!
+                    </p>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- ============================================================
+             3. INTERACTIVE SPRITE PLAYGROUND
+             ============================================================ -->
+        <section class="section" id="playground">
+            <div class="section-header">
+                <h3 class="section-title">🎮 SPRITE PLAYGROUND</h3>
+                <p class="section-subtitle">Click below to see Dogu in his different moods and animations</p>
+            </div>
+
+            <div class="playground-box">
+                <!-- Variant Selector Tabs -->
+                <div class="sprite-selector">
+                    <button class="btn-pixel-sm active btn-sprite-select" data-variant="birthday_walk">🎂 Party Hat</button>
+                    <button class="btn-pixel-sm btn-sprite-select" data-variant="idle">🐾 Idle</button>
+                    <button class="btn-pixel-sm btn-sprite-select" data-variant="walking">🚶 Walking</button>
+                    <button class="btn-pixel-sm btn-sprite-select" data-variant="food">🍖 Food</button>
+                    <button class="btn-pixel-sm btn-sprite-select" data-variant="water">💧 Water</button>
+                    <button class="btn-pixel-sm btn-sprite-select" data-variant="sleep">🌙 Sleep</button>
+                    <button class="btn-pixel-sm btn-sprite-select" data-variant="rest">🧘 Stretch</button>
+                    <button class="btn-pixel-sm btn-sprite-select" data-variant="barca">⚽ Barça</button>
+                    <button class="btn-pixel-sm btn-sprite-select" data-variant="f1">🏎️ F1</button>
+                </div>
+
+                <!-- Playground Animated Mascot Display -->
+                <div class="stage-display">
+                    <img id="playground-sprite" src="assets/sprites/birthday_walk_0.png" alt="Playground Sprite" class="playground-img pixel-art">
+                    <div class="stage-caption" id="playground-caption">
+                        🎂 Happy Birthday Abhishek! 🎉 Wishing you a legendary year filled with fast laps and goals!
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ============================================================
+             4. 3-STEP SETUP GUIDE
+             ============================================================ -->
+        <section class="section" id="guide">
+            <div class="section-header">
+                <h3 class="section-title">📖 HOW TO GET STARTED</h3>
+                <p class="section-subtitle">3 simple steps to welcome Dogu to your laptop</p>
+            </div>
+
+            <div class="guide-steps">
+
+                <!-- Step 1 -->
+                <div class="step-card">
+                    <span class="step-pill">STEP 1</span>
+                    <h4 class="step-title">Download Installer</h4>
+                    <p class="step-desc">
+                        Click the download button to grab <code>OyeDogSetup.exe</code>. Double-click the file to launch the setup wizard.
+                    </p>
+                    <div class="step-tip">
+                        💡 No administrator rights or password required! Installs safely to your local user folder.
+                    </div>
+                </div>
+
+                <!-- Step 2 -->
+                <div class="step-card">
+                    <span class="step-pill">STEP 2</span>
+                    <h4 class="step-title">Windows SmartScreen</h4>
+                    <p class="step-desc">
+                        Since this is a personal custom-built app, Windows may show a blue prompt saying <em>"Windows protected your PC"</em>.
+                    </p>
+                    <div class="step-tip">
+                        👉 Click <strong>"More info"</strong> and then click <strong>"Run anyway"</strong>.
+                    </div>
+                </div>
+
+                <!-- Step 3 -->
+                <div class="step-card">
+                    <span class="step-pill">STEP 3</span>
+                    <h4 class="step-title">Enjoy Your Companion</h4>
+                    <p class="step-desc">
+                        Oye Dog will open right up! A shortcut is added to your Start Menu and Desktop, and he will automatically launch to your system tray on startup.
+                    </p>
+                    <div class="step-tip">
+                        🐾 Look for the little dog icon in the bottom-right taskbar tray!
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- ============================================================
+             5. FINAL CTA
+             ============================================================ -->
+        <section class="cta-section">
+            <h3 class="cta-title">READY TO MEET YOUR COMPANION?</h3>
+            <p class="cta-desc">
+                Download Oye Dog today and have a loyal pixel friend on your desktop every day.
+            </p>
+
+            <a href="#download" class="btn-pixel-primary btn-download-app">
+                <span>📥</span> DOWNLOAD OYE DOG (SETUP.EXE)
+            </a>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-love">♥ Built with love for Abhishek • August 25 ♥</div>
+            <div class="footer-sub">Oye Dog — Pixel Desktop Companion &amp; Habit Reminder</div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="app.js"></script>
+</body>
+</html>
