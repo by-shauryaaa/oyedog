@@ -93,10 +93,13 @@ public partial class MainWindow : Window
                 {
                     if (settings.LaunchOnStartup)
                     {
-                        key.SetValue("PixelDogReminders", $"\"{exePath}\" --startup");
+                        key.SetValue("OyeDog", $"\"{exePath}\" --startup");
+                        // Clean up legacy key if present
+                        key.DeleteValue("PixelDogReminders", false);
                     }
                     else
                     {
+                        key.DeleteValue("OyeDog", false);
                         key.DeleteValue("PixelDogReminders", false);
                     }
                 }

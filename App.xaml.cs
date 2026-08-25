@@ -11,7 +11,8 @@ public partial class App : System.Windows.Application
         bool isStartup = false;
         if (e.Args != null && e.Args.Length > 0)
         {
-            isStartup = e.Args.Any(a => a.Equals("--startup", StringComparison.OrdinalIgnoreCase));
+            isStartup = e.Args.Any(a => a.Equals("--startup", StringComparison.OrdinalIgnoreCase) || 
+                                        a.Equals("--minimized", StringComparison.OrdinalIgnoreCase));
         }
 
         var mainWindow = new MainWindow(isStartup);
