@@ -187,15 +187,20 @@ public partial class ClassFlagWindow : Window
                 {
                     holdTimer.Stop();
 
-                    // 3. Threads snap and billboard falls back down
-                    var fadeThreads = new DoubleAnimation(1.0, 0.0, TimeSpan.FromMilliseconds(150));
+                    // 3. Threads snap and retract while billboard falls back down in 0.8s
+                    var retractThreads = new DoubleAnimation(1.0, 0.0, TimeSpan.FromMilliseconds(400))
+                    {
+                        EasingFunction = new QuadraticEase { EasingMode = EasingMode.EaseIn }
+                    };
+                    var fadeThreads = new DoubleAnimation(1.0, 0.0, TimeSpan.FromMilliseconds(350));
+                    ScaleBottomThreads.BeginAnimation(ScaleTransform.ScaleYProperty, retractThreads);
                     PnlBottomThreads.BeginAnimation(OpacityProperty, fadeThreads);
 
                     var fallDown = new DoubleAnimation
                     {
                         From = 0,
                         To = ActualHeight + 50,
-                        Duration = TimeSpan.FromMilliseconds(500),
+                        Duration = TimeSpan.FromMilliseconds(800), // 0.8s fall
                         EasingFunction = new QuadraticEase { EasingMode = EasingMode.EaseIn }
                     };
 
@@ -242,15 +247,20 @@ public partial class ClassFlagWindow : Window
                 {
                     holdTimer.Stop();
 
-                    // 3. Threads snap and billboard plummets off bottom of screen
-                    var fadeThreads = new DoubleAnimation(1.0, 0.0, TimeSpan.FromMilliseconds(150));
+                    // 3. Threads retract to top while billboard plummets all the way to bottom edge in 0.8s
+                    var retractThreads = new DoubleAnimation(1.0, 0.0, TimeSpan.FromMilliseconds(400))
+                    {
+                        EasingFunction = new QuadraticEase { EasingMode = EasingMode.EaseIn }
+                    };
+                    var fadeThreads = new DoubleAnimation(1.0, 0.0, TimeSpan.FromMilliseconds(350));
+                    ScaleTopThreads.BeginAnimation(ScaleTransform.ScaleYProperty, retractThreads);
                     PnlTopThreads.BeginAnimation(OpacityProperty, fadeThreads);
 
                     var fallDown = new DoubleAnimation
                     {
                         From = 0,
-                        To = workArea.Height + 50,
-                        Duration = TimeSpan.FromMilliseconds(550),
+                        To = workArea.Height + 80,
+                        Duration = TimeSpan.FromMilliseconds(800), // 0.8s fall
                         EasingFunction = new QuadraticEase { EasingMode = EasingMode.EaseIn }
                     };
 

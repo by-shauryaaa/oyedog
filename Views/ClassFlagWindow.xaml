@@ -98,7 +98,10 @@
         <Grid x:Name="BannerContainer" Visibility="Collapsed" Width="400">
             <StackPanel x:Name="PnlBannerStack" HorizontalAlignment="Center">
                 <!-- Top Threads (touching top edge of screen) -->
-                <Grid x:Name="PnlTopThreads" Height="80" Width="360" VerticalAlignment="Top">
+                <Grid x:Name="PnlTopThreads" Height="80" Width="360" VerticalAlignment="Top" RenderTransformOrigin="0.5,0.0">
+                    <Grid.RenderTransform>
+                        <ScaleTransform x:Name="ScaleTopThreads" ScaleY="1" />
+                    </Grid.RenderTransform>
                     <Border Width="3" Background="#3D271D" HorizontalAlignment="Left" Margin="40,0,0,0" />
                     <Border Width="3" Background="#3D271D" HorizontalAlignment="Right" Margin="0,0,40,0" />
                 </Grid>
@@ -152,7 +155,10 @@
                 </Border>
 
                 <!-- Bottom Threads (touching bottom edge of screen for bottom position) -->
-                <Grid x:Name="PnlBottomThreads" Height="80" Width="360" VerticalAlignment="Bottom" Visibility="Collapsed">
+                <Grid x:Name="PnlBottomThreads" Height="80" Width="360" VerticalAlignment="Bottom" Visibility="Collapsed" RenderTransformOrigin="0.5,1.0">
+                    <Grid.RenderTransform>
+                        <ScaleTransform x:Name="ScaleBottomThreads" ScaleY="1" />
+                    </Grid.RenderTransform>
                     <Border Width="3" Background="#3D271D" HorizontalAlignment="Left" Margin="40,0,0,0" />
                     <Border Width="3" Background="#3D271D" HorizontalAlignment="Right" Margin="0,0,40,0" />
                 </Grid>

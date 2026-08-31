@@ -333,18 +333,22 @@ public partial class MainWindow : Window
         _trayMenu = new Forms.ContextMenuStrip();
         _trayMenu.Opening += (s, e) => RebuildTrayScheduleMenu();
 
-        // Left-Click & Right-Click both trigger the unified schedule menu
+        // Left-Click restores app and navigates directly to Home tab
         _notifyIcon.MouseUp += (s, e) =>
         {
             if (e.Button == Forms.MouseButtons.Left)
             {
-                RebuildTrayScheduleMenu();
-                _trayMenu.Show(Forms.Cursor.Position);
+                ShowAndRestore();
+                NavigateTo(NavTarget.Home);
             }
         };
 
         _notifyIcon.ContextMenuStrip = _trayMenu;
-        _notifyIcon.DoubleClick += (s, e) => ShowAndRestore();
+        _notifyIcon.DoubleClick += (s, e) =>
+        {
+            ShowAndRestore();
+            NavigateTo(NavTarget.Home);
+        };
     }
 
     private class TrayScheduleItem
@@ -467,7 +471,11 @@ public partial class MainWindow : Window
 
         var openItem = new Forms.ToolStripMenuItem("Open Oye Dog");
         openItem.Font = new Font(_trayMenu.Font, System.Drawing.FontStyle.Bold);
-        openItem.Click += (s, e) => ShowAndRestore();
+        openItem.Click += (s, e) =>
+        {
+            ShowAndRestore();
+            NavigateTo(NavTarget.Home);
+        };
 
         var triggerWalkInItem = new Forms.ToolStripMenuItem("Dogu, Walk In! 🐾");
         triggerWalkInItem.Click += (s, e) =>
