@@ -174,16 +174,20 @@ public partial class MainWindow : Window
         BtnNavTimetable.Tag = _activeNav == NavTarget.Timetable ? "Active" : null;
         BtnNavSettings.Tag = _activeNav == NavTarget.Settings ? "Active" : null;
 
-        // Dog mini widget border highlight for Home
+        // Companion habitat highlight for Home
         if (_activeNav == NavTarget.Home)
         {
-            PnlSidebarDogWidget.BorderBrush = new WpfSolidColorBrush(WpfColor.FromRgb(255, 215, 0)); // #FFD700
-            PnlSidebarDogWidget.Background = new WpfSolidColorBrush(WpfColor.FromRgb(61, 39, 29));   // #3D271D
+            PnlDogBadge.BorderBrush = new WpfSolidColorBrush(WpfColor.FromRgb(255, 215, 0));  // #FFD700
+            PnlDogBadge.Background = new WpfSolidColorBrush(WpfColor.FromRgb(61, 39, 29));    // #3D271D
+            DogFloorShadow.Fill = new WpfSolidColorBrush(WpfColor.FromRgb(110, 65, 30));      // Warm golden floor glow
+            TxtCompanionName.Foreground = new WpfSolidColorBrush(WpfColor.FromRgb(255, 215, 0)); // #FFD700
         }
         else
         {
-            PnlSidebarDogWidget.BorderBrush = new WpfSolidColorBrush(WpfColor.FromRgb(90, 62, 43));  // #5A3E2B
-            PnlSidebarDogWidget.Background = new WpfSolidColorBrush(WpfColor.FromRgb(36, 22, 14));   // #24160E
+            PnlDogBadge.BorderBrush = new WpfSolidColorBrush(WpfColor.FromRgb(90, 62, 43));   // #5A3E2B
+            PnlDogBadge.Background = new WpfSolidColorBrush(WpfColor.FromRgb(42, 27, 20));    // #2A1B14
+            DogFloorShadow.Fill = new WpfSolidColorBrush(WpfColor.FromRgb(30, 18, 10));       // Subtle soft shadow
+            TxtCompanionName.Foreground = new WpfSolidColorBrush(WpfColor.FromRgb(216, 197, 178)); // #D8C5B2
         }
     }
 

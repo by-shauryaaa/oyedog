@@ -63,7 +63,7 @@ public partial class ClassFlagWindow : Window
         {
             From = startLeft,
             To = endLeft,
-            Duration = TimeSpan.FromSeconds(5.0),
+            Duration = TimeSpan.FromSeconds(15.0),
             FillBehavior = FillBehavior.Stop
         };
 

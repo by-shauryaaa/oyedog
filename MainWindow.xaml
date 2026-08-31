@@ -192,45 +192,63 @@
                     </StackPanel>
                 </ScrollViewer>
 
-                <!-- Bottom Area: Dog + Clock Mini-Widget (Expanded) / Tray Indicator (Collapsed) -->
-                <Grid Grid.Row="2" Margin="8,4,8,12">
-                    <!-- Dog Mini-Widget (Expanded) -->
-                    <Border x:Name="PnlSidebarDogWidget"
-                            Background="#24160E"
-                            BorderBrush="#5A3E2B"
-                            BorderThickness="2"
-                            CornerRadius="5"
-                            Padding="8,8"
-                            Cursor="Hand"
-                            ToolTip="Visit your companion at Home"
-                            MouseLeftButtonUp="PnlSidebarDogWidget_MouseLeftButtonUp">
+                <!-- Bottom Area: Dog Companion Habitat (Expanded) / Tray Indicator (Collapsed) -->
+                <Grid Grid.Row="2" Margin="4,8,4,16">
+                    <!-- Dog Companion Stage (Expanded) -->
+                    <Grid x:Name="PnlSidebarDogWidget"
+                          Cursor="Hand"
+                          ToolTip="Click Dogu to hang out at Home"
+                          MouseLeftButtonUp="PnlSidebarDogWidget_MouseLeftButtonUp">
                         <StackPanel HorizontalAlignment="Center">
-                            <!-- Mini Dog Mascot Animated Sprite -->
-                            <Image x:Name="SidebarDogSprite"
-                                   Width="40"
-                                   Height="40"
-                                   Source="pack://application:,,,/Assets/Sprites/idle_0.png"
-                                   RenderOptions.BitmapScalingMode="NearestNeighbor"
-                                   HorizontalAlignment="Center" />
+                            <!-- Floating Heart & Clock Badge -->
+                            <Border x:Name="PnlDogBadge"
+                                    Background="#2A1B14"
+                                    BorderBrush="#5A3E2B"
+                                    BorderThickness="1"
+                                    CornerRadius="3"
+                                    Padding="6,3"
+                                    Margin="0,0,0,4"
+                                    HorizontalAlignment="Center">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="♥ " Foreground="#FF6B8B" FontSize="8" />
+                                    <TextBlock x:Name="SidebarClock"
+                                               Text="12:00 PM"
+                                               FontFamily="{StaticResource PixelFont}"
+                                               FontSize="8"
+                                               FontWeight="Bold"
+                                               Foreground="#FFD700" />
+                                </StackPanel>
+                            </Border>
 
-                            <!-- Live Digital Clock -->
-                            <TextBlock x:Name="SidebarClock"
-                                       Text="12:00 PM"
-                                       FontFamily="{StaticResource PixelFont}"
-                                       FontSize="8"
-                                       FontWeight="Bold"
-                                       Foreground="#FFD700"
-                                       HorizontalAlignment="Center"
-                                       Margin="0,6,0,2" />
+                            <!-- Large Animated Dog Sprite & Grounding Shadow -->
+                            <Grid HorizontalAlignment="Center">
+                                <Ellipse x:Name="DogFloorShadow"
+                                         Width="60"
+                                         Height="14"
+                                         Fill="#1E120A"
+                                         VerticalAlignment="Bottom"
+                                         HorizontalAlignment="Center"
+                                         Margin="0,0,0,2" />
 
-                            <!-- Mini Home Hint -->
-                            <TextBlock Text="♥ HOME ♥"
-                                       FontFamily="{StaticResource PixelFont}"
-                                       FontSize="6"
-                                       Foreground="#D8C5B2"
+                                <Image x:Name="SidebarDogSprite"
+                                       Width="72"
+                                       Height="72"
+                                       Source="pack://application:,,,/Assets/Sprites/idle_0.png"
+                                       RenderOptions.BitmapScalingMode="NearestNeighbor"
                                        HorizontalAlignment="Center" />
+                            </Grid>
+
+                            <!-- Companion Label -->
+                            <TextBlock x:Name="TxtCompanionName"
+                                       Text="DOGU"
+                                       FontFamily="{StaticResource PixelFont}"
+                                       FontSize="7"
+                                       FontWeight="Bold"
+                                       Foreground="#D8C5B2"
+                                       HorizontalAlignment="Center"
+                                       Margin="0,2,0,0" />
                         </StackPanel>
-                    </Border>
+                    </Grid>
 
                     <!-- Collapsed Vertical Tray Chip -->
                     <Border x:Name="PnlSidebarTrayChip"
