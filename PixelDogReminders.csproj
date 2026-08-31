@@ -16,6 +16,7 @@
 
   <ItemGroup>
     <Resource Include="Assets\Sprites\*.png" />
+    <Resource Include="Assets\Scenery\*.png" />
     <Resource Include="Assets\Fonts\*.ttf" />
   </ItemGroup>
 

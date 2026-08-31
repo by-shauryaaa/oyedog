@@ -21,174 +21,362 @@
             <Setter Property="Cursor" Value="Hand" />
         </Style>
 
-        <Style x:Key="PixelActionBtn" TargetType="Button" BasedOn="{StaticResource PixelButtonStyle}">
-            <Setter Property="FontSize" Value="9" />
-            <Setter Property="Padding" Value="14,8" />
-            <Setter Property="Margin" Value="6,4" />
+        <!-- Contextual Pop-in Action Button Style -->
+        <Style x:Key="PixelActionBtn" TargetType="Button">
+            <Setter Property="FontFamily" Value="{StaticResource PixelFont}" />
+            <Setter Property="FontSize" Value="8" />
+            <Setter Property="Foreground" Value="#2D1E14" />
+            <Setter Property="Background" Value="#FFFBF0" />
+            <Setter Property="BorderBrush" Value="#5A3E2B" />
+            <Setter Property="BorderThickness" Value="2" />
+            <Setter Property="Padding" Value="12,8" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="actionBorder"
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="4"
+                                Padding="{TemplateBinding Padding}">
+                            <Border.Effect>
+                                <DropShadowEffect Color="#20000000" BlurRadius="4" ShadowDepth="2" Direction="315" />
+                            </Border.Effect>
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="actionBorder" Property="Background" Value="#FFD700" />
+                                <Setter TargetName="actionBorder" Property="BorderBrush" Value="#2D1E14" />
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="actionBorder" Property="Background" Value="#E6BE00" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
         </Style>
     </UserControl.Resources>
 
-    <Grid Margin="18">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="*" />
-            <RowDefinition Height="Auto" />
-        </Grid.RowDefinitions>
+    <Grid ClipToBounds="True">
+        <!-- 1. Full-Window Time-of-Day Pixel Scenery Backdrops -->
+        <Grid x:Name="PnlSceneryBackdrop">
+            <Image x:Name="ImgSceneryMorning"
+                   Source="pack://application:,,,/Assets/Scenery/scenery_morning.png"
+                   Stretch="UniformToFill"
+                   RenderOptions.BitmapScalingMode="NearestNeighbor"
+                   Opacity="0" />
 
-        <!-- 1. Dynamic Greeting -->
-        <Border Grid.Row="0"
-                Background="#FFFFFF"
-                BorderBrush="#D0C4B8"
-                BorderThickness="2"
-                CornerRadius="6"
-                Padding="16,12"
-                Margin="0,0,0,10"
-                HorizontalAlignment="Stretch">
-            <StackPanel HorizontalAlignment="Center">
-                <TextBlock x:Name="TxtGreeting"
-                           FontFamily="{StaticResource PixelFont}"
-                           FontSize="12"
-                           Foreground="#8B0000"
-                           FontWeight="Bold"
-                           TextAlignment="Center"
-                           TextWrapping="Wrap"
-                           Text="Good morning, Abhishek" />
+            <Image x:Name="ImgSceneryDay"
+                   Source="pack://application:,,,/Assets/Scenery/scenery_day.png"
+                   Stretch="UniformToFill"
+                   RenderOptions.BitmapScalingMode="NearestNeighbor"
+                   Opacity="1" />
 
-                <TextBlock x:Name="TxtSubGreeting"
-                           FontSize="11"
-                           Foreground="#665544"
-                           TextAlignment="Center"
-                           TextWrapping="Wrap"
-                           Margin="0,4,0,0"
-                           Text="Your desktop companion is ready for today." />
-            </StackPanel>
-        </Border>
+            <Image x:Name="ImgSceneryEvening"
+                   Source="pack://application:,,,/Assets/Scenery/scenery_evening.png"
+                   Stretch="UniformToFill"
+                   RenderOptions.BitmapScalingMode="NearestNeighbor"
+                   Opacity="0" />
 
-        <!-- 2. Live Real-Time Digital Clock -->
-        <Border Grid.Row="1"
-                Background="#3D271D"
-                BorderBrush="#8D6E57"
-                BorderThickness="2"
-                CornerRadius="6"
-                Padding="12,8"
-                Margin="0,0,0,12"
-                HorizontalAlignment="Center">
-            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
-                <TextBlock Text="⏰ " FontSize="13" VerticalAlignment="Center" />
-                <TextBlock x:Name="TxtLiveClock"
-                           FontFamily="{StaticResource PixelFont}"
-                           FontSize="12"
-                           Foreground="#FFD700"
-                           VerticalAlignment="Center"
-                           Text="12:00:00 PM" />
-            </StackPanel>
-        </Border>
-
-        <!-- 3. Permanent Dog Mascot Display (Clickable for Screen Walk) & Pet Buttons -->
-        <Grid Grid.Row="2" HorizontalAlignment="Center" VerticalAlignment="Center">
-            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
-
-                <!-- Speech / Reaction Bubble above dog -->
-                <Border x:Name="PnlDogSpeech"
-                        Background="#FFFBF0"
-                        BorderBrush="#8D6E57"
-                        BorderThickness="2"
-                        CornerRadius="4"
-                        Padding="10,6"
-                        Margin="0,0,0,4"
-                        HorizontalAlignment="Center"
-                        MaxWidth="340">
-                    <TextBlock x:Name="TxtDogReaction"
-                               FontFamily="{StaticResource PixelFont}"
-                               FontSize="8"
-                               Foreground="#8B5A2B"
-                               TextAlignment="Center"
-                               TextWrapping="Wrap"
-                               Text="Tap me to walk across your screen! 🐾" />
-                </Border>
-
-                <!-- Dog Sprite Box (Click to Walk) -->
-                <Grid Cursor="Hand"
-                      MouseLeftButtonUp="DogSprite_MouseLeftButtonUp"
-                      ToolTip="Click your dog companion to make it walk across your screen!">
-                    
-                    <!-- Soft Drop Shadow beneath dog -->
-                    <Ellipse Width="150" Height="24"
-                             Fill="#35000000"
-                             HorizontalAlignment="Center"
-                             VerticalAlignment="Bottom"
-                             Margin="0,0,0,8">
-                        <Ellipse.Effect>
-                            <BlurEffect Radius="14" />
-                        </Ellipse.Effect>
-                    </Ellipse>
-
-                    <!-- Animated Dog Sprite -->
-                    <Image x:Name="ImgHomeDog"
-                           Width="170"
-                           Height="170"
-                           HorizontalAlignment="Center"
-                           VerticalAlignment="Center"
-                           RenderOptions.BitmapScalingMode="NearestNeighbor" />
-                </Grid>
-
-                <!-- Interactive Pet Care Buttons: Feed, Pet, Walk -->
-                <WrapPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,8,0,0">
-                    <Button x:Name="BtnFeedDog"
-                            Content="🍖 Feed Dog"
-                            Style="{StaticResource PixelActionBtn}"
-                            Background="#FFF0D4"
-                            Click="BtnFeedDog_Click" />
-
-                    <Button x:Name="BtnPetDog"
-                            Content="❤️ Pet / Play"
-                            Style="{StaticResource PixelActionBtn}"
-                            Background="#FFE6E8"
-                            Click="BtnPetDog_Click" />
-
-                    <Button x:Name="BtnWalkDog"
-                            Content="🚶 Walk Screen"
-                            Style="{StaticResource PixelActionBtn}"
-                            Background="#E6F4EA"
-                            Click="BtnWalkDog_Click" />
-                </WrapPanel>
-            </StackPanel>
+            <Image x:Name="ImgSceneryNight"
+                   Source="pack://application:,,,/Assets/Scenery/scenery_night.png"
+                   Stretch="UniformToFill"
+                   RenderOptions.BitmapScalingMode="NearestNeighbor"
+                   Opacity="0" />
         </Grid>
 
-        <!-- 4. Quick Companion Status at bottom -->
-        <Border Grid.Row="3"
-                Background="#FAF2E8"
-                BorderBrush="#E0D6CC"
-                BorderThickness="2"
-                CornerRadius="4"
-                Padding="12,10"
-                Margin="0,10,0,0">
-            <Grid>
+        <!-- 2. Ambient Motion Layer (Birds, Clouds, Lantern Glow, Fireflies & Stars) -->
+        <Canvas x:Name="AmbientCanvas" IsHitTestVisible="False">
+            <!-- Morning Birds -->
+            <Image x:Name="ImgBird1"
+                   Source="pack://application:,,,/Assets/Sprites/bird_0.png"
+                   Width="24" Height="24"
+                   Canvas.Left="-50" Canvas.Top="60"
+                   RenderOptions.BitmapScalingMode="NearestNeighbor"
+                   Opacity="0" />
+            <Image x:Name="ImgBird2"
+                   Source="pack://application:,,,/Assets/Sprites/bird_1.png"
+                   Width="20" Height="20"
+                   Canvas.Left="-80" Canvas.Top="90"
+                   RenderOptions.BitmapScalingMode="NearestNeighbor"
+                   Opacity="0" />
+
+            <!-- Day Clouds -->
+            <Image x:Name="ImgCloud1"
+                   Source="pack://application:,,,/Assets/Sprites/cloud_0.png"
+                   Width="80" Height="40"
+                   Canvas.Left="40" Canvas.Top="35"
+                   RenderOptions.BitmapScalingMode="NearestNeighbor"
+                   Opacity="0.9" />
+            <Image x:Name="ImgCloud2"
+                   Source="pack://application:,,,/Assets/Sprites/cloud_1.png"
+                   Width="70" Height="35"
+                   Canvas.Left="350" Canvas.Top="70"
+                   RenderOptions.BitmapScalingMode="NearestNeighbor"
+                   Opacity="0.8" />
+
+            <!-- Evening Lantern Warm Glow (around right-hand doghouse) -->
+            <Ellipse x:Name="PnlLanternGlow"
+                     Width="110" Height="110"
+                     Canvas.Right="30" Canvas.Bottom="140"
+                     Opacity="0">
+                <Ellipse.Fill>
+                    <RadialGradientBrush>
+                        <GradientStop Color="#90FFD700" Offset="0.0" />
+                        <GradientStop Color="#40FF9900" Offset="0.5" />
+                        <GradientStop Color="#00FF8800" Offset="1.0" />
+                    </RadialGradientBrush>
+                </Ellipse.Fill>
+            </Ellipse>
+
+            <!-- Night Stars -->
+            <Image x:Name="ImgStar1"
+                   Source="pack://application:,,,/Assets/Sprites/star_0.png"
+                   Width="16" Height="16"
+                   Canvas.Left="120" Canvas.Top="45"
+                   RenderOptions.BitmapScalingMode="NearestNeighbor"
+                   Opacity="0" />
+            <Image x:Name="ImgStar2"
+                   Source="pack://application:,,,/Assets/Sprites/star_1.png"
+                   Width="16" Height="16"
+                   Canvas.Left="260" Canvas.Top="30"
+                   RenderOptions.BitmapScalingMode="NearestNeighbor"
+                   Opacity="0" />
+
+            <!-- Night Fireflies -->
+            <Image x:Name="ImgFirefly1"
+                   Source="pack://application:,,,/Assets/Sprites/firefly_0.png"
+                   Width="16" Height="16"
+                   Canvas.Left="160" Canvas.Bottom="120"
+                   RenderOptions.BitmapScalingMode="NearestNeighbor"
+                   Opacity="0" />
+            <Image x:Name="ImgFirefly2"
+                   Source="pack://application:,,,/Assets/Sprites/firefly_1.png"
+                   Width="16" Height="16"
+                   Canvas.Left="420" Canvas.Bottom="140"
+                   RenderOptions.BitmapScalingMode="NearestNeighbor"
+                   Opacity="0" />
+        </Canvas>
+
+        <!-- 3. Foreground Interactive UI Layer -->
+        <Grid Margin="18,14,18,14">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+
+            <!-- Top Floating De-Boxed Greeting & Live Clock -->
+            <Grid Grid.Row="0" Margin="0,4,0,0">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*" />
                     <ColumnDefinition Width="Auto" />
                 </Grid.ColumnDefinitions>
 
-                <StackPanel VerticalAlignment="Center" Margin="0,0,10,0">
-                    <TextBlock Text="● Running Resident in System Tray"
+                <!-- De-Boxed Greeting Text directly over scenery with crisp pixel shadow -->
+                <StackPanel Grid.Column="0" VerticalAlignment="Center">
+                    <TextBlock x:Name="TxtGreeting"
+                               FontFamily="{StaticResource PixelFont}"
+                               FontSize="13"
+                               Foreground="#FAF7F2"
                                FontWeight="Bold"
-                               FontSize="12"
-                               Foreground="#3D271D" />
-                    <TextBlock Text="Launches automatically on laptop startup. Reminders &amp; match alerts continue in background."
-                               FontSize="11"
-                               Foreground="#776655"
                                TextWrapping="Wrap"
-                               Margin="0,2,0,0" />
+                               Text="Good morning, Abhishek ☀️">
+                        <TextBlock.Effect>
+                            <DropShadowEffect Color="#1E120A" BlurRadius="0" ShadowDepth="2" Direction="315" Opacity="0.9" />
+                        </TextBlock.Effect>
+                    </TextBlock>
+
+                    <TextBlock x:Name="TxtSubGreeting"
+                               FontFamily="{StaticResource PixelFont}"
+                               FontSize="8"
+                               Foreground="#FFF3D6"
+                               TextWrapping="Wrap"
+                               Margin="0,6,0,0"
+                               Text="Your desktop companion is ready for today.">
+                        <TextBlock.Effect>
+                            <DropShadowEffect Color="#1E120A" BlurRadius="0" ShadowDepth="2" Direction="315" Opacity="0.9" />
+                        </TextBlock.Effect>
+                    </TextBlock>
                 </StackPanel>
 
-                <Button Grid.Column="1"
-                        Content="Test Popup 🐶"
-                        Style="{StaticResource PixelButtonStyle}"
-                        Background="#FFF8E7"
-                        Click="BtnTestPopup_Click"
-                        VerticalAlignment="Center" />
+                <!-- Live Digital Clock Pill -->
+                <Border Grid.Column="1"
+                        Background="#CC2D1E14"
+                        BorderBrush="#8D6E57"
+                        BorderThickness="2"
+                        CornerRadius="4"
+                        Padding="10,6"
+                        VerticalAlignment="Top">
+                    <Border.Effect>
+                        <DropShadowEffect Color="#30000000" BlurRadius="4" ShadowDepth="2" Direction="315" />
+                    </Border.Effect>
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                        <TextBlock Text="⏰ " FontSize="11" VerticalAlignment="Center" />
+                        <TextBlock x:Name="TxtLiveClock"
+                                   FontFamily="{StaticResource PixelFont}"
+                                   FontSize="10"
+                                   Foreground="#FFD700"
+                                   VerticalAlignment="Center"
+                                   Text="12:00:00 PM" />
+                    </StackPanel>
+                </Border>
             </Grid>
-        </Border>
+
+            <!-- Middle Stage: Companion Dog + Arc Contextual Action Menu + Speech Bubble -->
+            <Grid Grid.Row="1" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,10,0,10">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+
+                <!-- Floating Speech / Reaction Bubble -->
+                <Border x:Name="PnlDogSpeech"
+                        Grid.Row="0"
+                        Background="#FFFBF0"
+                        BorderBrush="#5A3E2B"
+                        BorderThickness="2"
+                        CornerRadius="4"
+                        Padding="10,6"
+                        Margin="0,0,0,8"
+                        HorizontalAlignment="Center"
+                        MaxWidth="380">
+                    <Border.Effect>
+                        <DropShadowEffect Color="#30000000" BlurRadius="4" ShadowDepth="2" Direction="315" />
+                    </Border.Effect>
+                    <TextBlock x:Name="TxtDogReaction"
+                               FontFamily="{StaticResource PixelFont}"
+                               FontSize="8"
+                               Foreground="#5A3E2B"
+                               TextAlignment="Center"
+                               TextWrapping="Wrap"
+                               Text="Tap me to walk across your screen! 🐾" />
+                </Border>
+
+                <!-- Interactive Stage Container (Dog & Contextual Radial Buttons) -->
+                <Grid Grid.Row="1" Width="440" Height="220">
+                    <!-- 1. Top-Left Action: 🍖 Feed Dog -->
+                    <Border x:Name="PnlBtnFeed"
+                            HorizontalAlignment="Left"
+                            VerticalAlignment="Top"
+                            Margin="10,12,0,0"
+                            RenderTransformOrigin="0.5,0.5">
+                        <Border.RenderTransform>
+                            <ScaleTransform x:Name="ScaleBtnFeed" ScaleX="1" ScaleY="1" />
+                        </Border.RenderTransform>
+                        <Button x:Name="BtnFeedDog"
+                                Content="🍖 Feed Dog"
+                                Style="{StaticResource PixelActionBtn}"
+                                ToolTip="Give Dogu a tasty treat"
+                                Click="BtnFeedDog_Click" />
+                    </Border>
+
+                    <!-- 2. Top-Right Action: ❤️ Pet / Play -->
+                    <Border x:Name="PnlBtnPet"
+                            HorizontalAlignment="Right"
+                            VerticalAlignment="Top"
+                            Margin="0,12,10,0"
+                            RenderTransformOrigin="0.5,0.5">
+                        <Border.RenderTransform>
+                            <ScaleTransform x:Name="ScaleBtnPet" ScaleX="1" ScaleY="1" />
+                        </Border.RenderTransform>
+                        <Button x:Name="BtnPetDog"
+                                Content="❤️ Pet / Play"
+                                Style="{StaticResource PixelActionBtn}"
+                                ToolTip="Give Dogu some love &amp; pets"
+                                Click="BtnPetDog_Click" />
+                    </Border>
+
+                    <!-- 3. Companion Dog Stage (with Walk-to-Center TranslateTransform) -->
+                    <Grid x:Name="DogStageContainer"
+                          HorizontalAlignment="Center"
+                          VerticalAlignment="Center"
+                          Cursor="Hand"
+                          MouseLeftButtonUp="DogSprite_MouseLeftButtonUp"
+                          ToolTip="Click your dog companion to make it walk across your screen!">
+                        <Grid.RenderTransform>
+                            <TranslateTransform x:Name="TransDogEntrance" X="0" Y="0" />
+                        </Grid.RenderTransform>
+
+                        <!-- Paws Soft Drop Shadow -->
+                        <Ellipse Width="140" Height="22"
+                                 Fill="#40000000"
+                                 HorizontalAlignment="Center"
+                                 VerticalAlignment="Bottom"
+                                 Margin="0,0,0,6">
+                            <Ellipse.Effect>
+                                <BlurEffect Radius="10" />
+                            </Ellipse.Effect>
+                        </Ellipse>
+
+                        <!-- Animated Dog Mascot -->
+                        <Image x:Name="ImgHomeDog"
+                               Width="160"
+                               Height="160"
+                               Source="pack://application:,,,/Assets/Sprites/idle_0.png"
+                               HorizontalAlignment="Center"
+                               VerticalAlignment="Center"
+                               RenderOptions.BitmapScalingMode="NearestNeighbor" />
+                    </Grid>
+
+                    <!-- 4. Bottom-Center Action: 🚶 Walk Screen -->
+                    <Border x:Name="PnlBtnWalk"
+                            HorizontalAlignment="Center"
+                            VerticalAlignment="Bottom"
+                            Margin="0,0,0,2"
+                            RenderTransformOrigin="0.5,0.5">
+                        <Border.RenderTransform>
+                            <ScaleTransform x:Name="ScaleBtnWalk" ScaleX="1" ScaleY="1" />
+                        </Border.RenderTransform>
+                        <Button x:Name="BtnWalkDog"
+                                Content="🚶 Walk Across Screen"
+                                Style="{StaticResource PixelActionBtn}"
+                                ToolTip="Watch Dogu stroll across your desktop"
+                                Click="BtnWalkDog_Click" />
+                    </Border>
+                </Grid>
+            </Grid>
+
+            <!-- Bottom Floating Tray Resident Strip -->
+            <Border Grid.Row="2"
+                    Background="#CC2D1E14"
+                    BorderBrush="#8D6E57"
+                    BorderThickness="2"
+                    CornerRadius="4"
+                    Padding="10,8"
+                    Margin="0,2,0,0">
+                <Border.Effect>
+                    <DropShadowEffect Color="#30000000" BlurRadius="4" ShadowDepth="2" Direction="315" />
+                </Border.Effect>
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+
+                    <StackPanel VerticalAlignment="Center" Margin="0,0,10,0">
+                        <TextBlock Text="● Running Resident in System Tray"
+                                   FontFamily="{StaticResource PixelFont}"
+                                   FontSize="8"
+                                   Foreground="#9FE29D" />
+                        <TextBlock Text="Reminders, class timetable flags &amp; match alerts continue in background."
+                                   FontSize="10"
+                                   Foreground="#D8C5B2"
+                                   TextWrapping="Wrap"
+                                   Margin="0,2,0,0" />
+                    </StackPanel>
+
+                    <Button Grid.Column="1"
+                            Content="Test Popup 🐶"
+                            Style="{StaticResource PixelButtonStyle}"
+                            Background="#FFF8E7"
+                            Click="BtnTestPopup_Click"
+                            VerticalAlignment="Center" />
+                </Grid>
+            </Border>
+        </Grid>
     </Grid>
 </UserControl>

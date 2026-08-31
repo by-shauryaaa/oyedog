@@ -223,30 +223,20 @@
                             <!-- Large Animated Dog Sprite & Grounding Shadow -->
                             <Grid HorizontalAlignment="Center">
                                 <Ellipse x:Name="DogFloorShadow"
-                                         Width="60"
-                                         Height="14"
+                                         Width="72"
+                                         Height="16"
                                          Fill="#1E120A"
                                          VerticalAlignment="Bottom"
                                          HorizontalAlignment="Center"
                                          Margin="0,0,0,2" />
 
                                 <Image x:Name="SidebarDogSprite"
-                                       Width="72"
-                                       Height="72"
+                                       Width="84"
+                                       Height="84"
                                        Source="pack://application:,,,/Assets/Sprites/idle_0.png"
                                        RenderOptions.BitmapScalingMode="NearestNeighbor"
                                        HorizontalAlignment="Center" />
                             </Grid>
-
-                            <!-- Companion Label -->
-                            <TextBlock x:Name="TxtCompanionName"
-                                       Text="DOGU"
-                                       FontFamily="{StaticResource PixelFont}"
-                                       FontSize="7"
-                                       FontWeight="Bold"
-                                       Foreground="#D8C5B2"
-                                       HorizontalAlignment="Center"
-                                       Margin="0,2,0,0" />
                         </StackPanel>
                     </Grid>
 

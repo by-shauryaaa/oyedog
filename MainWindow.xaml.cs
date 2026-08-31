@@ -151,6 +151,7 @@ public partial class MainWindow : Window
 
     public void NavigateTo(NavTarget target)
     {
+        bool isFreshHomeNav = (_activeNav != NavTarget.Home && target == NavTarget.Home);
         _activeNav = target;
 
         MainContent.Content = target switch
@@ -164,6 +165,11 @@ public partial class MainWindow : Window
         };
 
         UpdateNavHighlights();
+
+        if (isFreshHomeNav)
+        {
+            _homeTab.TriggerEntranceWalk();
+        }
     }
 
     private void UpdateNavHighlights()
@@ -180,14 +186,12 @@ public partial class MainWindow : Window
             PnlDogBadge.BorderBrush = new WpfSolidColorBrush(WpfColor.FromRgb(255, 215, 0));  // #FFD700
             PnlDogBadge.Background = new WpfSolidColorBrush(WpfColor.FromRgb(61, 39, 29));    // #3D271D
             DogFloorShadow.Fill = new WpfSolidColorBrush(WpfColor.FromRgb(110, 65, 30));      // Warm golden floor glow
-            TxtCompanionName.Foreground = new WpfSolidColorBrush(WpfColor.FromRgb(255, 215, 0)); // #FFD700
         }
         else
         {
             PnlDogBadge.BorderBrush = new WpfSolidColorBrush(WpfColor.FromRgb(90, 62, 43));   // #5A3E2B
             PnlDogBadge.Background = new WpfSolidColorBrush(WpfColor.FromRgb(42, 27, 20));    // #2A1B14
             DogFloorShadow.Fill = new WpfSolidColorBrush(WpfColor.FromRgb(30, 18, 10));       // Subtle soft shadow
-            TxtCompanionName.Foreground = new WpfSolidColorBrush(WpfColor.FromRgb(216, 197, 178)); // #D8C5B2
         }
     }
 
