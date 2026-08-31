@@ -42,12 +42,12 @@ public partial class ClassFlagWindow : Window
         TxtBannerSubject.Text = _label;
         TxtBannerCountdown.Text = _countdown;
 
-        // Apply accent color
+        // Apply accent color to flag & billboard
         try
         {
             var brush = (SolidColorBrush)new BrushConverter().ConvertFromString(_accentColor)!;
             FlagBorder.Background = brush;
-            BannerSubjectPlaque.Background = brush;
+            BillboardBorder.Background = brush; // Subject color for billboard!
 
             var c = brush.Color;
             double luminance = (0.299 * c.R + 0.587 * c.G + 0.114 * c.B);
@@ -61,7 +61,7 @@ public partial class ClassFlagWindow : Window
         catch
         {
             FlagBorder.Background = new SolidColorBrush(WpfColor.FromRgb(100, 181, 246));
-            BannerSubjectPlaque.Background = new SolidColorBrush(WpfColor.FromRgb(100, 181, 246));
+            BillboardBorder.Background = new SolidColorBrush(WpfColor.FromRgb(100, 181, 246));
         }
 
         // Toggle container visibility
@@ -92,10 +92,10 @@ public partial class ClassFlagWindow : Window
         var workArea = SystemParameters.WorkArea;
         return _position switch
         {
-            FlagPosition.Top => workArea.Top + (workArea.Height * 0.18),
-            FlagPosition.Middle => workArea.Top + (workArea.Height * 0.48) - 30,
-            FlagPosition.Bottom => workArea.Bottom - 120,
-            _ => workArea.Top + (workArea.Height * 0.18)
+            FlagPosition.Top => workArea.Top + (workArea.Height * 0.10), // Top 10%
+            FlagPosition.Middle => workArea.Top + (workArea.Height * 0.50) - 35, // Centre
+            FlagPosition.Bottom => workArea.Bottom - 140, // Bottom
+            _ => workArea.Top + (workArea.Height * 0.10)
         };
     }
 
@@ -156,49 +156,111 @@ public partial class ClassFlagWindow : Window
     private void StartBannerAnimation()
     {
         var workArea = SystemParameters.WorkArea;
-        double finalTop = ComputeTargetTop();
-        double startTop = -ActualHeight - 20;
-
         Left = workArea.Left + (workArea.Width - ActualWidth) / 2.0;
-        Top = startTop;
 
-        // 1. Drop down with slight bounce (0.8s)
-        var dropIn = new DoubleAnimation
+        if (_position == FlagPosition.Bottom)
         {
-            From = startTop,
-            To = finalTop,
-            Duration = TimeSpan.FromMilliseconds(800),
-            EasingFunction = new BackEase { EasingMode = EasingMode.EaseOut, Amplitude = 0.3 }
-        };
+            // Bottom banner: threads touch bottom edge of screen
+            PnlTopThreads.Visibility = Visibility.Collapsed;
+            PnlBottomThreads.Visibility = Visibility.Visible;
+            PnlBottomThreads.Height = 100;
 
-        dropIn.Completed += (s, ev) =>
-        {
-            Top = finalTop;
+            Top = workArea.Bottom - ActualHeight;
 
-            // 2. Hold in place for 10 seconds
-            var holdTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(10) };
-            holdTimer.Tick += (st, evt) =>
+            // Start below screen
+            TransBillboard.Y = ActualHeight + 30;
+
+            // 1. Rise up from bottom with slight bounce (0.8s)
+            var riseUp = new DoubleAnimation
             {
-                holdTimer.Stop();
-
-                // 3. Snap strings and plummet off-screen (0.5s fast gravity fall)
-                var fadeStrings = new DoubleAnimation(1.0, 0.0, TimeSpan.FromMilliseconds(150));
-                PnlHangingStrings.BeginAnimation(OpacityProperty, fadeStrings);
-
-                var fallDown = new DoubleAnimation
-                {
-                    From = finalTop,
-                    To = workArea.Bottom + 50,
-                    Duration = TimeSpan.FromMilliseconds(500),
-                    EasingFunction = new QuadraticEase { EasingMode = EasingMode.EaseIn }
-                };
-
-                fallDown.Completed += (s2, ev2) => Close();
-                BeginAnimation(TopProperty, fallDown);
+                From = ActualHeight + 30,
+                To = 0,
+                Duration = TimeSpan.FromMilliseconds(800),
+                EasingFunction = new BackEase { EasingMode = EasingMode.EaseOut, Amplitude = 0.3 }
             };
-            holdTimer.Start();
-        };
 
-        BeginAnimation(TopProperty, dropIn);
+            riseUp.Completed += (s, ev) =>
+            {
+                // 2. Hold for 10 seconds
+                var holdTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(10) };
+                holdTimer.Tick += (st, evt) =>
+                {
+                    holdTimer.Stop();
+
+                    // 3. Threads snap and billboard falls back down
+                    var fadeThreads = new DoubleAnimation(1.0, 0.0, TimeSpan.FromMilliseconds(150));
+                    PnlBottomThreads.BeginAnimation(OpacityProperty, fadeThreads);
+
+                    var fallDown = new DoubleAnimation
+                    {
+                        From = 0,
+                        To = ActualHeight + 50,
+                        Duration = TimeSpan.FromMilliseconds(500),
+                        EasingFunction = new QuadraticEase { EasingMode = EasingMode.EaseIn }
+                    };
+
+                    fallDown.Completed += (s2, ev2) => Close();
+                    TransBillboard.BeginAnimation(TranslateTransform.YProperty, fallDown);
+                };
+                holdTimer.Start();
+            };
+
+            TransBillboard.BeginAnimation(TranslateTransform.YProperty, riseUp);
+        }
+        else
+        {
+            // Top or Centre banner: threads start at the very top edge of the screen (Top = 0)
+            PnlTopThreads.Visibility = Visibility.Visible;
+            PnlBottomThreads.Visibility = Visibility.Collapsed;
+
+            double threadHeight = (_position == FlagPosition.Top)
+                ? (workArea.Height * 0.10)
+                : (workArea.Height * 0.45) - 35;
+
+            PnlTopThreads.Height = Math.Max(40, threadHeight);
+
+            // Window top starts at the exact top edge of the work area
+            Top = workArea.Top;
+
+            double startY = -PnlTopThreads.Height - 120;
+            TransBillboard.Y = startY;
+
+            // 1. Drop down from top edge with slight bounce (0.8s)
+            var dropIn = new DoubleAnimation
+            {
+                From = startY,
+                To = 0,
+                Duration = TimeSpan.FromMilliseconds(800),
+                EasingFunction = new BackEase { EasingMode = EasingMode.EaseOut, Amplitude = 0.3 }
+            };
+
+            dropIn.Completed += (s, ev) =>
+            {
+                // 2. Hold in place for 10 seconds
+                var holdTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(10) };
+                holdTimer.Tick += (st, evt) =>
+                {
+                    holdTimer.Stop();
+
+                    // 3. Threads snap and billboard plummets off bottom of screen
+                    var fadeThreads = new DoubleAnimation(1.0, 0.0, TimeSpan.FromMilliseconds(150));
+                    PnlTopThreads.BeginAnimation(OpacityProperty, fadeThreads);
+
+                    var fallDown = new DoubleAnimation
+                    {
+                        From = 0,
+                        To = workArea.Height + 50,
+                        Duration = TimeSpan.FromMilliseconds(550),
+                        EasingFunction = new QuadraticEase { EasingMode = EasingMode.EaseIn }
+                    };
+
+                    fallDown.Completed += (s2, ev2) => Close();
+                    TransBillboard.BeginAnimation(TranslateTransform.YProperty, fallDown);
+                };
+                holdTimer.Start();
+            };
+
+            TransBillboard.BeginAnimation(TranslateTransform.YProperty, dropIn);
+        }
     }
 }

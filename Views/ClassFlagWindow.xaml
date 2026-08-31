@@ -14,9 +14,9 @@
         <FontFamily x:Key="PixelFont">pack://application:,,,/Assets/Fonts/#Press Start 2P</FontFamily>
     </Window.Resources>
 
-    <Grid Margin="12">
+    <Grid Margin="0">
         <!-- 1. Simple Style (Classic Fly-by Flag) -->
-        <Grid x:Name="SimpleContainer">
+        <Grid x:Name="SimpleContainer" Margin="12">
             <Border x:Name="FlagBorder"
                     Background="#64B5F6"
                     BorderBrush="#2D1E14"
@@ -60,7 +60,7 @@
         </Grid>
 
         <!-- 2. Cloud Style (Floating Pixel Cloud) -->
-        <Grid x:Name="CloudContainer" Visibility="Collapsed" Width="360" Height="120">
+        <Grid x:Name="CloudContainer" Visibility="Collapsed" Width="360" Height="120" Margin="12">
             <!-- Cloud Graphic Backdrop -->
             <Image Source="pack://application:,,,/Assets/Sprites/reminder_cloud.png"
                    Stretch="Fill"
@@ -94,75 +94,69 @@
             </StackPanel>
         </Grid>
 
-        <!-- 3. Banner Style (Hanging Billboard / Hoarding) -->
-        <Grid x:Name="BannerContainer" Visibility="Collapsed" Width="380">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="35" />
-                <RowDefinition Height="Auto" />
-            </Grid.RowDefinitions>
+        <!-- 3. Banner Style (Billboard in Subject Color with Edge-Touching Hanging Threads) -->
+        <Grid x:Name="BannerContainer" Visibility="Collapsed" Width="400">
+            <StackPanel x:Name="PnlBannerStack" HorizontalAlignment="Center">
+                <!-- Top Threads (touching top edge of screen) -->
+                <Grid x:Name="PnlTopThreads" Height="80" Width="360" VerticalAlignment="Top">
+                    <Border Width="3" Background="#3D271D" HorizontalAlignment="Left" Margin="40,0,0,0" />
+                    <Border Width="3" Background="#3D271D" HorizontalAlignment="Right" Margin="0,0,40,0" />
+                </Grid>
 
-            <!-- Hanging Suspension Strings attached to top of screen -->
-            <Grid x:Name="PnlHangingStrings" Grid.Row="0" VerticalAlignment="Stretch">
-                <!-- Left String -->
-                <Border Width="3"
-                        Background="#3D271D"
-                        HorizontalAlignment="Left"
-                        Margin="40,0,0,0" />
-                <!-- Right String -->
-                <Border Width="3"
-                        Background="#3D271D"
-                        HorizontalAlignment="Right"
-                        Margin="0,0,40,0" />
-            </Grid>
+                <!-- Billboard in Subject Color -->
+                <Border x:Name="BillboardBorder"
+                        Width="380"
+                        Background="#64B5F6"
+                        BorderBrush="#2D1E14"
+                        BorderThickness="3"
+                        CornerRadius="4"
+                        Padding="16,12"
+                        SnapsToDevicePixels="True">
+                    <Border.Effect>
+                        <DropShadowEffect Color="#2D1E14" Direction="315" ShadowDepth="5" BlurRadius="0" Opacity="0.8" />
+                    </Border.Effect>
+                    <Border.RenderTransform>
+                        <TranslateTransform x:Name="TransBillboard" X="0" Y="0" />
+                    </Border.RenderTransform>
 
-            <!-- Hanging Billboard Plaque -->
-            <Border x:Name="BillboardBorder"
-                    Grid.Row="1"
-                    Background="#24160E"
-                    BorderBrush="#FFD700"
-                    BorderThickness="3"
-                    CornerRadius="4"
-                    Padding="16,12"
-                    SnapsToDevicePixels="True">
-                <Border.Effect>
-                    <DropShadowEffect Color="#2D1E14" Direction="315" ShadowDepth="5" BlurRadius="0" Opacity="0.8" />
-                </Border.Effect>
-
-                <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
-                    <!-- Top Hooks & Countdown -->
-                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,0,0,6">
-                        <TextBlock Text="🔔 " FontSize="11" VerticalAlignment="Center" />
-                        <Border Background="#3D271D"
-                                BorderBrush="#5A3E2B"
-                                BorderThickness="1"
+                    <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                        <!-- Top Countdown Pill -->
+                        <Border Background="#2D1E14"
                                 CornerRadius="3"
                                 Padding="8,4"
-                                VerticalAlignment="Center">
-                            <TextBlock x:Name="TxtBannerCountdown"
-                                       Text="in 10 min"
-                                       FontFamily="{StaticResource PixelFont}"
-                                       FontSize="9"
-                                       FontWeight="Bold"
-                                       Foreground="#FFD700" />
+                                HorizontalAlignment="Center"
+                                Margin="0,0,0,6">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="🔔 " FontSize="9" VerticalAlignment="Center" />
+                                <TextBlock x:Name="TxtBannerCountdown"
+                                           Text="in 10 min"
+                                           FontFamily="{StaticResource PixelFont}"
+                                           FontSize="9"
+                                           FontWeight="Bold"
+                                           Foreground="#FFD700"
+                                           VerticalAlignment="Center" />
+                            </StackPanel>
                         </Border>
-                    </StackPanel>
 
-                    <!-- Subject Accent Plate -->
-                    <Border x:Name="BannerSubjectPlaque"
-                            Background="#64B5F6"
-                            CornerRadius="3"
-                            Padding="12,6"
-                            HorizontalAlignment="Center">
+                        <!-- Large Subject Name in Billboard -->
                         <TextBlock x:Name="TxtBannerSubject"
                                    Text="Data Structures"
                                    FontFamily="{StaticResource PixelFont}"
-                                   FontSize="11"
+                                   FontSize="12"
                                    FontWeight="Bold"
                                    Foreground="#2D1E14"
+                                   TextAlignment="Center"
+                                   TextWrapping="Wrap"
                                    HorizontalAlignment="Center" />
-                    </Border>
-                </StackPanel>
-            </Border>
+                    </StackPanel>
+                </Border>
+
+                <!-- Bottom Threads (touching bottom edge of screen for bottom position) -->
+                <Grid x:Name="PnlBottomThreads" Height="80" Width="360" VerticalAlignment="Bottom" Visibility="Collapsed">
+                    <Border Width="3" Background="#3D271D" HorizontalAlignment="Left" Margin="40,0,0,0" />
+                    <Border Width="3" Background="#3D271D" HorizontalAlignment="Right" Margin="0,0,40,0" />
+                </Grid>
+            </StackPanel>
         </Grid>
     </Grid>
 </Window>
