@@ -22,21 +22,9 @@ public class FlagReminderService
             try
             {
                 var (settings, _) = _persistence.LoadData();
-                var workArea = SystemParameters.WorkArea;
 
                 var flagWindow = new ClassFlagWindow();
-                flagWindow.SetContent(label, countdown, accentColor);
-
-                // Compute vertical position based on settings
-                double targetTop = settings.ClassFlagPosition switch
-                {
-                    FlagPosition.Top => workArea.Top + (workArea.Height * 0.20),
-                    FlagPosition.Middle => workArea.Top + (workArea.Height * 0.50) - 35,
-                    FlagPosition.Bottom => workArea.Bottom - 110,
-                    _ => workArea.Top + (workArea.Height * 0.20)
-                };
-
-                flagWindow.Top = targetTop;
+                flagWindow.SetContent(label, countdown, accentColor, settings.ReminderStyle, settings.ClassFlagPosition);
                 flagWindow.Show();
             }
             catch (Exception ex)

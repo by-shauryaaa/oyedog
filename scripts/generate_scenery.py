@@ -564,6 +564,40 @@ def generate_ambient_sprites():
             cv.putpixel((5, 4), DIM)
         cv.save_png(os.path.join(SPRITES_DIR, f"star_{s_idx}.png"), scale=4)
 
+def generate_reminder_assets():
+    # 1. Floating Reminder Cloud (72x26, scaled 4x = 288x104)
+    w, h = 72, 26
+    cv = PixelCanvas(w, h)
+    
+    WHITE = (255, 255, 255, 255)
+    SOFT_BLUE = (220, 240, 255, 255)
+    SHADOW_BLUE = (175, 210, 240, 255)
+    OUTLINE_BLUE = (70, 110, 150, 255)
+
+    # Draw cloud body
+    cv.fill_rect(10, 8, 52, 14, WHITE)
+    cv.fill_rect(16, 4, 40, 6, WHITE)
+    cv.fill_rect(24, 2, 24, 4, WHITE)
+
+    # Cloud shading base
+    cv.fill_rect(12, 18, 48, 4, SOFT_BLUE)
+    cv.fill_rect(14, 20, 44, 2, SHADOW_BLUE)
+
+    # Outline
+    # Top bumps
+    cv.draw_line(16, 4, 24, 2, OUTLINE_BLUE)
+    cv.draw_line(24, 2, 48, 2, OUTLINE_BLUE)
+    cv.draw_line(48, 2, 56, 4, OUTLINE_BLUE)
+    cv.draw_line(56, 4, 62, 8, OUTLINE_BLUE)
+    cv.draw_line(62, 8, 64, 16, OUTLINE_BLUE)
+    cv.draw_line(64, 16, 60, 22, OUTLINE_BLUE)
+    cv.draw_line(60, 22, 12, 22, OUTLINE_BLUE)
+    cv.draw_line(12, 22, 8, 16, OUTLINE_BLUE)
+    cv.draw_line(8, 16, 10, 8, OUTLINE_BLUE)
+    cv.draw_line(10, 8, 16, 4, OUTLINE_BLUE)
+
+    cv.save_png(os.path.join(SPRITES_DIR, "reminder_cloud.png"), scale=4)
+
 if __name__ == "__main__":
     print("Generating pixel art scenery backgrounds...")
     generate_morning()
@@ -572,4 +606,6 @@ if __name__ == "__main__":
     generate_night()
     print("Generating ambient particle sprites...")
     generate_ambient_sprites()
+    print("Generating reminder assets...")
+    generate_reminder_assets()
     print("Done!")

@@ -95,6 +95,15 @@ public partial class SettingsTab : WpfControl
                 break;
             }
         }
+
+        foreach (WpfComboBoxItem item in CmbReminderStyle.Items)
+        {
+            if (item.Tag is string tag && Enum.TryParse<ClassReminderStyle>(tag, true, out var style) && style == settings.ReminderStyle)
+            {
+                CmbReminderStyle.SelectedItem = item;
+                break;
+            }
+        }
     }
 
     private void Position_Changed(object sender, RoutedEventArgs e)
@@ -190,6 +199,18 @@ public partial class SettingsTab : WpfControl
         {
             var (settings, reminders) = _persistence.LoadData();
             settings.ClassFlagPosition = pos;
+            _persistence.SaveData(settings, reminders);
+        }
+    }
+
+    private void CmbReminderStyle_SelectionChanged(object sender, WpfSelectionChangedEventArgs e)
+    {
+        if (_isInitializing) return;
+
+        if (CmbReminderStyle.SelectedItem is WpfComboBoxItem selected && selected.Tag is string tag && Enum.TryParse<ClassReminderStyle>(tag, true, out var style))
+        {
+            var (settings, reminders) = _persistence.LoadData();
+            settings.ReminderStyle = style;
             _persistence.SaveData(settings, reminders);
         }
     }

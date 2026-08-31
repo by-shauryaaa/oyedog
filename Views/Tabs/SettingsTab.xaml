@@ -214,18 +214,38 @@
                             </StackPanel>
                         </Grid>
 
-                        <StackPanel Margin="0,4,0,0">
-                            <TextBlock Text="FLAG SCREEN POSITION"
-                                       FontFamily="{StaticResource PixelFont}"
-                                       FontSize="7"
-                                       Foreground="#8D6E57"
-                                       Margin="0,0,0,4" />
-                            <ComboBox x:Name="CmbFlagPosition" Height="30" Width="240" HorizontalAlignment="Left" SelectionChanged="CmbFlagPosition_SelectionChanged">
-                                <ComboBoxItem Content="Top (20% from top - Default)" Tag="Top" IsSelected="True" />
-                                <ComboBoxItem Content="Center / Middle" Tag="Middle" />
-                                <ComboBoxItem Content="Bottom area" Tag="Bottom" />
-                            </ComboBox>
-                        </StackPanel>
+                        <Grid Margin="0,4,0,0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+
+                            <StackPanel Grid.Column="0" Margin="0,0,8,0">
+                                <TextBlock Text="FLAG SCREEN POSITION"
+                                           FontFamily="{StaticResource PixelFont}"
+                                           FontSize="7"
+                                           Foreground="#8D6E57"
+                                           Margin="0,0,0,4" />
+                                <ComboBox x:Name="CmbFlagPosition" Height="30" SelectionChanged="CmbFlagPosition_SelectionChanged">
+                                    <ComboBoxItem Content="Top (20% - Default)" Tag="Top" IsSelected="True" />
+                                    <ComboBoxItem Content="Center / Middle" Tag="Middle" />
+                                    <ComboBoxItem Content="Bottom area" Tag="Bottom" />
+                                </ComboBox>
+                            </StackPanel>
+
+                            <StackPanel Grid.Column="1" Margin="8,0,0,0">
+                                <TextBlock Text="ANIMATION STYLE"
+                                           FontFamily="{StaticResource PixelFont}"
+                                           FontSize="7"
+                                           Foreground="#8D6E57"
+                                           Margin="0,0,0,4" />
+                                <ComboBox x:Name="CmbReminderStyle" Height="30" SelectionChanged="CmbReminderStyle_SelectionChanged">
+                                    <ComboBoxItem Content="Simple (Fly-by Flag - Default)" Tag="Simple" IsSelected="True" />
+                                    <ComboBoxItem Content="Cloud (Floating Cloud)" Tag="Cloud" />
+                                    <ComboBoxItem Content="Banner (Hanging Billboard)" Tag="Banner" />
+                                </ComboBox>
+                            </StackPanel>
+                        </Grid>
                     </StackPanel>
                 </Border>
 
@@ -246,7 +266,7 @@
                         </StackPanel>
 
                         <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
-                            <Button Content="Test Flag 🚩"
+                            <Button Content="Preview Alert 🎬"
                                     Style="{StaticResource PixelButtonStyle}"
                                     Background="#FFF8E7"
                                     Margin="0,0,8,0"
