@@ -15,12 +15,14 @@ public partial class MainWindow : Window
     private readonly PersistenceService _persistence;
     private readonly SportsDataService _sportsService;
     private readonly PopupService _popupService;
+    private readonly FlagReminderService _flagService;
     private readonly WalkInService _walkInService;
     private readonly ReminderScheduler _scheduler;
 
     private readonly HomeTab _homeTab;
     private readonly RemindersTab _remindersTab;
     private readonly MatchesTab _matchesTab;
+    private readonly TimetableTab _timetableTab;
     private readonly SettingsTab _settingsTab;
 
     private Forms.NotifyIcon? _notifyIcon;
@@ -35,18 +37,21 @@ public partial class MainWindow : Window
         _persistence = new PersistenceService();
         _sportsService = new SportsDataService(_persistence);
         _popupService = new PopupService(_persistence);
+        _flagService = new FlagReminderService(_persistence);
         _walkInService = new WalkInService(_persistence);
-        _scheduler = new ReminderScheduler(_persistence, _popupService, _sportsService);
+        _scheduler = new ReminderScheduler(_persistence, _popupService, _sportsService, _flagService);
 
         // 2. Initialize Tabs
         _homeTab = new HomeTab(_persistence, _popupService, _walkInService);
         _remindersTab = new RemindersTab(_persistence);
         _matchesTab = new MatchesTab(_persistence, _sportsService, _scheduler);
-        _settingsTab = new SettingsTab(_persistence, _popupService);
+        _timetableTab = new TimetableTab(_persistence);
+        _settingsTab = new SettingsTab(_persistence, _popupService, _flagService);
 
         HomeContent.Content = _homeTab;
         RemindersContent.Content = _remindersTab;
         MatchesContent.Content = _matchesTab;
+        TimetableContent.Content = _timetableTab;
         SettingsContent.Content = _settingsTab;
 
         // Navigation from promo card to matches tab (index 2)

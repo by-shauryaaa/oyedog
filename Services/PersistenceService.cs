@@ -42,9 +42,16 @@ public class PersistenceService
     {
         public AppSettings Settings { get; set; } = new();
         public List<ReminderModel> Reminders { get; set; } = new();
+        public List<Subject> Subjects { get; set; } = new();
     }
 
     public (AppSettings Settings, List<ReminderModel> Reminders) LoadData()
+    {
+        var (settings, reminders, _) = LoadAllData();
+        return (settings, reminders);
+    }
+
+    public (AppSettings Settings, List<ReminderModel> Reminders, List<Subject> Subjects) LoadAllData()
     {
         try
         {
@@ -54,7 +61,8 @@ public class PersistenceService
                 var container = JsonSerializer.Deserialize<AppDataContainer>(json, JsonOptions);
                 if (container != null && container.Reminders != null && container.Reminders.Count > 0)
                 {
-                    return (container.Settings, container.Reminders);
+                    container.Subjects ??= new List<Subject>();
+                    return (container.Settings, container.Reminders, container.Subjects);
                 }
             }
         }
@@ -73,11 +81,30 @@ public class PersistenceService
             SnoozeDurationMinutes = 5
         };
         var defaultReminders = CreateDefaultReminders();
-        SaveData(defaultSettings, defaultReminders);
-        return (defaultSettings, defaultReminders);
+        var defaultSubjects = new List<Subject>();
+        SaveAllData(defaultSettings, defaultReminders, defaultSubjects);
+        return (defaultSettings, defaultReminders, defaultSubjects);
+    }
+
+    public List<Subject> LoadSubjects()
+    {
+        var (_, _, subjects) = LoadAllData();
+        return subjects;
+    }
+
+    public void SaveSubjects(List<Subject> subjects)
+    {
+        var (settings, reminders, _) = LoadAllData();
+        SaveAllData(settings, reminders, subjects);
     }
 
     public void SaveData(AppSettings settings, List<ReminderModel> reminders)
+    {
+        var (_, _, subjects) = LoadAllData();
+        SaveAllData(settings, reminders, subjects);
+    }
+
+    public void SaveAllData(AppSettings settings, List<ReminderModel> reminders, List<Subject> subjects)
     {
         try
         {
@@ -90,7 +117,8 @@ public class PersistenceService
             var container = new AppDataContainer
             {
                 Settings = settings,
-                Reminders = reminders
+                Reminders = reminders,
+                Subjects = subjects ?? new List<Subject>()
             };
             var json = JsonSerializer.Serialize(container, JsonOptions);
             File.WriteAllText(_configFilePath, json);

@@ -8,8 +8,10 @@ public class ReminderScheduler
     private readonly PersistenceService _persistence;
     private readonly PopupService _popupService;
     private readonly SportsDataService _sportsService;
+    private readonly FlagReminderService? _flagService;
     private readonly DispatcherTimer _timer;
     private readonly HashSet<string> _notifiedSportsEvents = new();
+    private readonly HashSet<string> _notifiedTimetableSlots = new();
     private readonly List<(DateTime FireAtUtc, ReminderModel Reminder)> _snoozedReminders = new();
     private bool _isPaused = false;
     private DateTime _lastSportsRefreshUtc = DateTime.MinValue;
@@ -30,11 +32,12 @@ public class ReminderScheduler
         }
     }
 
-    public ReminderScheduler(PersistenceService persistence, PopupService popupService, SportsDataService sportsService)
+    public ReminderScheduler(PersistenceService persistence, PopupService popupService, SportsDataService sportsService, FlagReminderService? flagService = null)
     {
         _persistence = persistence;
         _popupService = popupService;
         _sportsService = sportsService;
+        _flagService = flagService;
 
         _timer = new DispatcherTimer
         {
@@ -130,10 +133,49 @@ public class ReminderScheduler
             CheckSportsEvents(nowUtc, settings);
         }
 
+        // 4. Process Timetable Class Reminders
+        if (settings.TimetableRemindersEnabled)
+        {
+            CheckTimetableEvents(now, settings);
+        }
+
         // Refresh sports schedule once daily
         if ((nowUtc - _lastSportsRefreshUtc).TotalHours >= 24)
         {
             _ = RefreshSportsDataAsync();
+        }
+    }
+
+    private void CheckTimetableEvents(DateTime now, AppSettings settings)
+    {
+        var subjects = _persistence.LoadSubjects();
+        var today = now.DayOfWeek;
+        var leadMinutes = settings.LeadTimeMinutes;
+
+        foreach (var subject in subjects)
+        {
+            if (subject.Slots == null) continue;
+            foreach (var slot in subject.Slots)
+            {
+                if (slot.DayOfWeek != today) continue;
+
+                // Slot start time today
+                var slotStartToday = now.Date.Add(slot.StartTime);
+                var triggerTime = slotStartToday.AddMinutes(-leadMinutes);
+
+                // Check window: within 20 seconds of trigger time
+                var diffSeconds = (now - triggerTime).TotalSeconds;
+                if (diffSeconds >= 0 && diffSeconds <= 20)
+                {
+                    var dedupKey = $"{slot.Id}:{now:yyyyMMdd}";
+                    if (!_notifiedTimetableSlots.Contains(dedupKey))
+                    {
+                        _notifiedTimetableSlots.Add(dedupKey);
+                        var countdownText = leadMinutes == 1 ? "in 1 min" : $"in {leadMinutes} min";
+                        _flagService?.Show(subject.Name, countdownText, subject.Color);
+                    }
+                }
+            }
         }
     }
 

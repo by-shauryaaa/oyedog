@@ -1,3 +1,4 @@
+using System;
 using System.Windows;
 using PixelDogReminders.Models;
 using PixelDogReminders.Services;
@@ -12,12 +13,14 @@ public partial class SettingsTab : WpfControl
 {
     private readonly PersistenceService _persistence;
     private readonly PopupService _popupService;
+    private readonly FlagReminderService? _flagService;
     private bool _isInitializing = true;
 
-    public SettingsTab(PersistenceService persistence, PopupService popupService)
+    public SettingsTab(PersistenceService persistence, PopupService popupService, FlagReminderService? flagService = null)
     {
         _persistence = persistence;
         _popupService = popupService;
+        _flagService = flagService;
         _isInitializing = true;
 
         InitializeComponent();
@@ -31,7 +34,7 @@ public partial class SettingsTab : WpfControl
         _isInitializing = true;
         var (settings, _) = _persistence.LoadData();
 
-        // Position
+        // 1. Position
         switch (settings.Position)
         {
             case PopupPosition.TopLeft: RbTopLeft.IsChecked = true; break;
@@ -45,7 +48,7 @@ public partial class SettingsTab : WpfControl
                 break;
         }
 
-        // Snooze
+        // 2. Snooze
         foreach (WpfComboBoxItem item in CmbSnooze.Items)
         {
             if (item.Tag is string tag && int.TryParse(tag, out var mins) && mins == settings.SnoozeDurationMinutes)
@@ -55,12 +58,42 @@ public partial class SettingsTab : WpfControl
             }
         }
 
-        // Launch on Startup & Startup Greeting
+        // 3. Launch on Startup & Startup Greeting
         ChkLaunchOnStartup.IsChecked = settings.LaunchOnStartup;
         ChkStartupGreeting.IsChecked = settings.StartupGreetingEnabled;
 
-        // API Key
+        // 4. API Key
         TxtApiKey.Text = settings.FootballDataApiKey;
+
+        // 5. Timetable Settings
+        ChkTimetableReminders.IsChecked = settings.TimetableRemindersEnabled;
+
+        foreach (WpfComboBoxItem item in CmbDefaultDuration.Items)
+        {
+            if (item.Tag is string tag && int.TryParse(tag, out var dur) && dur == settings.DefaultClassDurationMinutes)
+            {
+                CmbDefaultDuration.SelectedItem = item;
+                break;
+            }
+        }
+
+        foreach (WpfComboBoxItem item in CmbLeadTime.Items)
+        {
+            if (item.Tag is string tag && int.TryParse(tag, out var lead) && lead == settings.LeadTimeMinutes)
+            {
+                CmbLeadTime.SelectedItem = item;
+                break;
+            }
+        }
+
+        foreach (WpfComboBoxItem item in CmbFlagPosition.Items)
+        {
+            if (item.Tag is string tag && Enum.TryParse<FlagPosition>(tag, true, out var pos) && pos == settings.ClassFlagPosition)
+            {
+                CmbFlagPosition.SelectedItem = item;
+                break;
+            }
+        }
     }
 
     private void Position_Changed(object sender, RoutedEventArgs e)
@@ -115,12 +148,69 @@ public partial class SettingsTab : WpfControl
         _persistence.SaveData(settings, reminders);
     }
 
+    private void ChkTimetableReminders_Changed(object sender, RoutedEventArgs e)
+    {
+        if (_isInitializing) return;
+
+        var (settings, reminders) = _persistence.LoadData();
+        settings.TimetableRemindersEnabled = ChkTimetableReminders.IsChecked == true;
+        _persistence.SaveData(settings, reminders);
+    }
+
+    private void CmbDefaultDuration_SelectionChanged(object sender, WpfSelectionChangedEventArgs e)
+    {
+        if (_isInitializing) return;
+
+        if (CmbDefaultDuration.SelectedItem is WpfComboBoxItem selected && selected.Tag is string tag && int.TryParse(tag, out var mins))
+        {
+            var (settings, reminders) = _persistence.LoadData();
+            settings.DefaultClassDurationMinutes = mins;
+            _persistence.SaveData(settings, reminders);
+        }
+    }
+
+    private void CmbLeadTime_SelectionChanged(object sender, WpfSelectionChangedEventArgs e)
+    {
+        if (_isInitializing) return;
+
+        if (CmbLeadTime.SelectedItem is WpfComboBoxItem selected && selected.Tag is string tag && int.TryParse(tag, out var mins))
+        {
+            var (settings, reminders) = _persistence.LoadData();
+            settings.LeadTimeMinutes = mins;
+            _persistence.SaveData(settings, reminders);
+        }
+    }
+
+    private void CmbFlagPosition_SelectionChanged(object sender, WpfSelectionChangedEventArgs e)
+    {
+        if (_isInitializing) return;
+
+        if (CmbFlagPosition.SelectedItem is WpfComboBoxItem selected && selected.Tag is string tag && Enum.TryParse<FlagPosition>(tag, true, out var pos))
+        {
+            var (settings, reminders) = _persistence.LoadData();
+            settings.ClassFlagPosition = pos;
+            _persistence.SaveData(settings, reminders);
+        }
+    }
+
     private void BtnSaveApiKey_Click(object sender, RoutedEventArgs e)
     {
         var (settings, reminders) = _persistence.LoadData();
         settings.FootballDataApiKey = TxtApiKey.Text.Trim();
         _persistence.SaveData(settings, reminders);
         WpfMessageBox.Show("Football API key saved! Matches tab will refresh fixtures automatically.", "Saved", MessageBoxButton.OK, MessageBoxImage.Information);
+    }
+
+    private void BtnTestFlag_Click(object sender, RoutedEventArgs e)
+    {
+        var subjects = _persistence.LoadSubjects();
+        string testName = subjects.Count > 0 ? subjects[0].Name : "Data Structures";
+        string testColor = subjects.Count > 0 ? subjects[0].Color : "#64B5F6";
+
+        var (settings, _) = _persistence.LoadData();
+        string countdown = $"in {settings.LeadTimeMinutes} min";
+
+        _flagService?.Show(testName, countdown, testColor);
     }
 
     private void BtnTestPopup_Click(object sender, RoutedEventArgs e)

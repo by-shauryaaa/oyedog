@@ -22,4 +22,10 @@ public class AppSettings
     public bool StartupGreetingEnabled { get; set; } = true;
     public bool LaunchOnStartup { get; set; } = true;
     public DateTime? LastWalkInDate { get; set; } = null;
+
+    // Timetable Settings
+    public bool TimetableRemindersEnabled { get; set; } = true;
+    public int DefaultClassDurationMinutes { get; set; } = 60;
+    public int LeadTimeMinutes { get; set; } = 10;
+    public FlagPosition ClassFlagPosition { get; set; } = FlagPosition.Top;
 }

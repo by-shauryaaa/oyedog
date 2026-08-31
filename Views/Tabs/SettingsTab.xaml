@@ -160,7 +160,76 @@
                     </StackPanel>
                 </Border>
 
-                <!-- 5. Test Notification Button -->
+                <!-- 5. Timetable Class Reminders -->
+                <Border Style="{StaticResource SettingsCard}">
+                    <StackPanel>
+                        <TextBlock Text="TIMETABLE CLASS REMINDERS" Style="{StaticResource PixelSectionHeader}" />
+                        <TextBlock Text="Configure fly-by flag notifications before your scheduled classes:"
+                                   FontSize="11"
+                                   Foreground="#666666"
+                                   TextWrapping="Wrap"
+                                   Margin="0,0,0,10" />
+
+                        <CheckBox x:Name="ChkTimetableReminders"
+                                  Content="Enable pre-class fly-by flag reminders"
+                                  FontWeight="SemiBold"
+                                  IsChecked="True"
+                                  Margin="0,0,0,12"
+                                  Checked="ChkTimetableReminders_Changed"
+                                  Unchecked="ChkTimetableReminders_Changed" />
+
+                        <Grid Margin="0,0,0,10">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+
+                            <StackPanel Grid.Column="0" Margin="0,0,8,0">
+                                <TextBlock Text="DEFAULT CLASS DURATION"
+                                           FontFamily="{StaticResource PixelFont}"
+                                           FontSize="7"
+                                           Foreground="#8D6E57"
+                                           Margin="0,0,0,4" />
+                                <ComboBox x:Name="CmbDefaultDuration" Height="30" SelectionChanged="CmbDefaultDuration_SelectionChanged">
+                                    <ComboBoxItem Content="45 minutes" Tag="45" />
+                                    <ComboBoxItem Content="60 minutes (Default)" Tag="60" IsSelected="True" />
+                                    <ComboBoxItem Content="90 minutes" Tag="90" />
+                                    <ComboBoxItem Content="120 minutes" Tag="120" />
+                                    <ComboBoxItem Content="150 minutes" Tag="150" />
+                                </ComboBox>
+                            </StackPanel>
+
+                            <StackPanel Grid.Column="1" Margin="8,0,0,0">
+                                <TextBlock Text="ALERT LEAD TIME"
+                                           FontFamily="{StaticResource PixelFont}"
+                                           FontSize="7"
+                                           Foreground="#8D6E57"
+                                           Margin="0,0,0,4" />
+                                <ComboBox x:Name="CmbLeadTime" Height="30" SelectionChanged="CmbLeadTime_SelectionChanged">
+                                    <ComboBoxItem Content="5 minutes before" Tag="5" />
+                                    <ComboBoxItem Content="10 minutes before (Default)" Tag="10" IsSelected="True" />
+                                    <ComboBoxItem Content="15 minutes before" Tag="15" />
+                                    <ComboBoxItem Content="30 minutes before" Tag="30" />
+                                </ComboBox>
+                            </StackPanel>
+                        </Grid>
+
+                        <StackPanel Margin="0,4,0,0">
+                            <TextBlock Text="FLAG SCREEN POSITION"
+                                       FontFamily="{StaticResource PixelFont}"
+                                       FontSize="7"
+                                       Foreground="#8D6E57"
+                                       Margin="0,0,0,4" />
+                            <ComboBox x:Name="CmbFlagPosition" Height="30" Width="240" HorizontalAlignment="Left" SelectionChanged="CmbFlagPosition_SelectionChanged">
+                                <ComboBoxItem Content="Top (20% from top - Default)" Tag="Top" IsSelected="True" />
+                                <ComboBoxItem Content="Center / Middle" Tag="Middle" />
+                                <ComboBoxItem Content="Bottom area" Tag="Bottom" />
+                            </ComboBox>
+                        </StackPanel>
+                    </StackPanel>
+                </Border>
+
+                <!-- 6. Test Notifications -->
                 <Border Style="{StaticResource SettingsCard}">
                     <Grid>
                         <Grid.ColumnDefinitions>
@@ -169,19 +238,24 @@
                         </Grid.ColumnDefinitions>
 
                         <StackPanel Margin="0,0,10,0" VerticalAlignment="Center">
-                            <TextBlock Text="PREVIEW COMPANION POPUP" Style="{StaticResource PixelSectionHeader}" />
-                            <TextBlock Text="Trigger a live test popup on your screen right now."
+                            <TextBlock Text="PREVIEW COMPANION POPUPS" Style="{StaticResource PixelSectionHeader}" />
+                            <TextBlock Text="Trigger live test notifications on your screen right now."
                                        FontSize="11"
                                        Foreground="#666666"
                                        TextWrapping="Wrap" />
                         </StackPanel>
 
-                        <Button Grid.Column="1"
-                                Content="Test Popup 🐶"
-                                Style="{StaticResource PixelButtonStyle}"
-                                Background="#FFE8D6"
-                                Click="BtnTestPopup_Click"
-                                VerticalAlignment="Center" />
+                        <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                            <Button Content="Test Flag 🚩"
+                                    Style="{StaticResource PixelButtonStyle}"
+                                    Background="#FFF8E7"
+                                    Margin="0,0,8,0"
+                                    Click="BtnTestFlag_Click" />
+                            <Button Content="Test Dog 🐶"
+                                    Style="{StaticResource PixelButtonStyle}"
+                                    Background="#FFE8D6"
+                                    Click="BtnTestPopup_Click" />
+                        </StackPanel>
                     </Grid>
                 </Border>
 

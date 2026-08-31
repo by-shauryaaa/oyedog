@@ -1,0 +1,112 @@
+<UserControl x:Class="PixelDogReminders.Views.Tabs.TimetableTab"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:tabs="clr-namespace:PixelDogReminders.Views.Tabs"
+             Background="#FAF7F2">
+
+    <UserControl.Resources>
+        <FontFamily x:Key="PixelFont">pack://application:,,,/Assets/Fonts/#Press Start 2P</FontFamily>
+
+        <!-- Segmented View Switcher Button -->
+        <Style x:Key="ViewSwitcherButtonStyle" TargetType="Button">
+            <Setter Property="FontFamily" Value="{StaticResource PixelFont}" />
+            <Setter Property="FontSize" Value="8" />
+            <Setter Property="Foreground" Value="#2D1E14" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="Padding" Value="12,8" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="border"
+                                Background="#FFF8E7"
+                                BorderBrush="#2D1E14"
+                                BorderThickness="2"
+                                CornerRadius="4">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="border" Property="Background" Value="#FFE8D6" />
+                            </Trigger>
+                            <Trigger Property="Tag" Value="Active">
+                                <Setter TargetName="border" Property="Background" Value="#FFD700" />
+                                <Setter TargetName="border" Property="BorderThickness" Value="2" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Add Subject Primary Button -->
+        <Style x:Key="AddSubjectButtonStyle" TargetType="Button">
+            <Setter Property="FontFamily" Value="{StaticResource PixelFont}" />
+            <Setter Property="FontSize" Value="9" />
+            <Setter Property="Foreground" Value="#2D1E14" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="Padding" Value="14,9" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="border"
+                                Background="#FFD700"
+                                BorderBrush="#2D1E14"
+                                BorderThickness="2"
+                                CornerRadius="4">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="border" Property="Background" Value="#FFE44D" />
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="border" Property="Background" Value="#C69500" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </UserControl.Resources>
+
+    <Grid Margin="12,10,12,12">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <!-- Top Header & Controls Bar -->
+        <Grid Grid.Row="0" Margin="0,0,0,10">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+
+            <!-- View Switcher -->
+            <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
+                <Button x:Name="BtnWeekGrid"
+                        Content="📅 WEEK GRID"
+                        Style="{StaticResource ViewSwitcherButtonStyle}"
+                        Tag="Active"
+                        Margin="0,0,8,0"
+                        Click="BtnWeekGrid_Click" />
+                <Button x:Name="BtnScheduleList"
+                        Content="📋 SCHEDULE"
+                        Style="{StaticResource ViewSwitcherButtonStyle}"
+                        Click="BtnScheduleList_Click" />
+            </StackPanel>
+
+            <!-- Add Subject Button -->
+            <Button Grid.Column="1"
+                    Content="+ ADD SUBJECT"
+                    Style="{StaticResource AddSubjectButtonStyle}"
+                    Click="BtnAddSubject_Click" />
+        </Grid>
+
+        <!-- Content Area -->
+        <Grid Grid.Row="1">
+            <tabs:WeekGridView x:Name="ViewWeekGrid" Visibility="Visible" />
+            <tabs:ScheduleListView x:Name="ViewScheduleList" Visibility="Collapsed" />
+        </Grid>
+    </Grid>
+</UserControl>

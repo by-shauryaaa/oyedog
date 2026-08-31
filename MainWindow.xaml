@@ -123,7 +123,12 @@
                 <ContentControl x:Name="MatchesContent" />
             </TabItem>
 
-            <!-- Tab 3: Settings -->
+            <!-- Tab 3: Timetable -->
+            <TabItem Header="📅 Timetable" Style="{StaticResource PixelTabItemStyle}">
+                <ContentControl x:Name="TimetableContent" />
+            </TabItem>
+
+            <!-- Tab 4: Settings -->
             <TabItem Header="⚙️ Settings" Style="{StaticResource PixelTabItemStyle}">
                 <ContentControl x:Name="SettingsContent" />
             </TabItem>

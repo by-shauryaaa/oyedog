@@ -239,4 +239,113 @@ public class AppTests
             if (File.Exists(tempFile)) File.Delete(tempFile);
         }
     }
+
+    [Fact]
+    public void SubjectColorPalette_ReturnsUniqueColors()
+    {
+        var used = new List<string>();
+        for (int i = 0; i < SubjectColorPalette.Palette.Length; i++)
+        {
+            var nextColor = SubjectColorPalette.Next(used);
+            Assert.False(used.Contains(nextColor));
+            used.Add(nextColor);
+        }
+    }
+
+    [Fact]
+    public void Slot_EndTime_DerivedCorrectly()
+    {
+        var slot = new Slot
+        {
+            StartTime = new TimeSpan(9, 0, 0)
+        };
+        var end90 = slot.GetEndTime(90);
+        Assert.Equal(new TimeSpan(10, 30, 0), end90);
+
+        var end45 = slot.GetEndTime(45);
+        Assert.Equal(new TimeSpan(9, 45, 0), end45);
+    }
+
+    [Fact]
+    public void SlotOverlap_DirectConflict_Detected()
+    {
+        var slot1 = new Slot { DayOfWeek = DayOfWeek.Monday, StartTime = new TimeSpan(9, 0, 0) };
+        int dur1 = 60; // 09:00 - 10:00
+
+        var slot2 = new Slot { DayOfWeek = DayOfWeek.Monday, StartTime = new TimeSpan(9, 30, 0) };
+        int dur2 = 60; // 09:30 - 10:30
+
+        var s1Start = slot1.StartTime;
+        var s1End = slot1.GetEndTime(dur1);
+        var s2Start = slot2.StartTime;
+        var s2End = slot2.GetEndTime(dur2);
+
+        // Overlap test
+        bool overlaps = s1Start < s2End && s2Start < s1End;
+        Assert.True(overlaps);
+    }
+
+    [Fact]
+    public void SlotOverlap_AdjacentSlots_DoNotConflict()
+    {
+        var slot1 = new Slot { DayOfWeek = DayOfWeek.Monday, StartTime = new TimeSpan(9, 0, 0) };
+        int dur1 = 60; // 09:00 - 10:00
+
+        var slot2 = new Slot { DayOfWeek = DayOfWeek.Monday, StartTime = new TimeSpan(10, 0, 0) };
+        int dur2 = 60; // 10:00 - 11:00
+
+        var s1Start = slot1.StartTime;
+        var s1End = slot1.GetEndTime(dur1);
+        var s2Start = slot2.StartTime;
+        var s2End = slot2.GetEndTime(dur2);
+
+        // Overlap test (end-exclusive)
+        bool overlaps = s1Start < s2End && s2Start < s1End;
+        Assert.False(overlaps);
+    }
+
+    [Fact]
+    public void AppSettings_TimetableDefaults()
+    {
+        var settings = new AppSettings();
+        Assert.True(settings.TimetableRemindersEnabled);
+        Assert.Equal(60, settings.DefaultClassDurationMinutes);
+        Assert.Equal(10, settings.LeadTimeMinutes);
+        Assert.Equal(FlagPosition.Top, settings.ClassFlagPosition);
+    }
+
+    [Fact]
+    public void PersistenceService_SavesAndLoadsSubjects()
+    {
+        var tempFile = Path.Combine(Path.GetTempPath(), $"test_config_{Guid.NewGuid()}.json");
+        try
+        {
+            var service = new PersistenceService(tempFile);
+            var testSubject = new Subject
+            {
+                Name = "Operating Systems",
+                DurationMinutes = 90,
+                Room = "Lab 4",
+                Color = "#BA68C8",
+                Slots = new List<Slot>
+                {
+                    new() { DayOfWeek = DayOfWeek.Tuesday, StartTime = new TimeSpan(11, 0, 0) },
+                    new() { DayOfWeek = DayOfWeek.Thursday, StartTime = new TimeSpan(14, 0, 0) }
+                }
+            };
+
+            service.SaveSubjects(new List<Subject> { testSubject });
+
+            var loaded = service.LoadSubjects();
+            Assert.Single(loaded);
+            Assert.Equal("Operating Systems", loaded[0].Name);
+            Assert.Equal(90, loaded[0].DurationMinutes);
+            Assert.Equal(2, loaded[0].Slots.Count);
+            Assert.Equal(DayOfWeek.Tuesday, loaded[0].Slots[0].DayOfWeek);
+        }
+        finally
+        {
+            if (File.Exists(tempFile)) File.Delete(tempFile);
+        }
+    }
 }
