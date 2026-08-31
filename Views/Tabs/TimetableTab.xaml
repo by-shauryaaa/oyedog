@@ -10,10 +10,11 @@
         <!-- Segmented View Switcher Button -->
         <Style x:Key="ViewSwitcherButtonStyle" TargetType="Button">
             <Setter Property="FontFamily" Value="{StaticResource PixelFont}" />
-            <Setter Property="FontSize" Value="8" />
+            <Setter Property="FontSize" Value="9" />
             <Setter Property="Foreground" Value="#2D1E14" />
             <Setter Property="Cursor" Value="Hand" />
-            <Setter Property="Padding" Value="12,8" />
+            <Setter Property="Padding" Value="16,11" />
+            <Setter Property="MinHeight" Value="38" />
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
@@ -41,10 +42,11 @@
         <!-- Add Subject Primary Button -->
         <Style x:Key="AddSubjectButtonStyle" TargetType="Button">
             <Setter Property="FontFamily" Value="{StaticResource PixelFont}" />
-            <Setter Property="FontSize" Value="9" />
+            <Setter Property="FontSize" Value="10" />
             <Setter Property="Foreground" Value="#2D1E14" />
             <Setter Property="Cursor" Value="Hand" />
-            <Setter Property="Padding" Value="14,9" />
+            <Setter Property="Padding" Value="18,11" />
+            <Setter Property="MinHeight" Value="38" />
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">

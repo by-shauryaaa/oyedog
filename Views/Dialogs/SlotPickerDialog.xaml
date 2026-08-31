@@ -17,7 +17,8 @@
             <Setter Property="FontSize" Value="9" />
             <Setter Property="Foreground" Value="#2D1E14" />
             <Setter Property="Cursor" Value="Hand" />
-            <Setter Property="Padding" Value="14,10" />
+            <Setter Property="Padding" Value="16,12" />
+            <Setter Property="MinHeight" Value="36" />
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
@@ -25,7 +26,7 @@
                                 Background="#FFF8E7"
                                 BorderBrush="#2D1E14"
                                 BorderThickness="2"
-                                CornerRadius="3">
+                                CornerRadius="4">
                             <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
                         </Border>
                         <ControlTemplate.Triggers>
@@ -42,6 +43,7 @@
         </Style>
 
         <Style x:Key="PixelPrimaryButtonStyle" TargetType="Button" BasedOn="{StaticResource PixelButtonStyle}">
+            <Setter Property="Padding" Value="18,12" />
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
@@ -49,7 +51,7 @@
                                 Background="#FFD700"
                                 BorderBrush="#2D1E14"
                                 BorderThickness="2"
-                                CornerRadius="3">
+                                CornerRadius="4">
                             <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
                         </Border>
                         <ControlTemplate.Triggers>
@@ -64,6 +66,34 @@
                 </Setter.Value>
             </Setter>
         </Style>
+
+        <Style x:Key="QuickChipStyle" TargetType="Button">
+            <Setter Property="FontFamily" Value="{StaticResource PixelFont}" />
+            <Setter Property="FontSize" Value="7" />
+            <Setter Property="Foreground" Value="#665544" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="Padding" Value="6,4" />
+            <Setter Property="Margin" Value="0,0,4,4" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="border"
+                                Background="#F5EFE6"
+                                BorderBrush="#D0C4B8"
+                                BorderThickness="1"
+                                CornerRadius="3">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="border" Property="Background" Value="#FFE8D6" />
+                                <Setter TargetName="border" Property="BorderBrush" Value="#8D6E57" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
     </Window.Resources>
 
     <Grid Margin="16">
@@ -72,7 +102,7 @@
                 BorderThickness="3"
                 CornerRadius="6"
                 Padding="22"
-                Width="380">
+                Width="400">
             <Border.Effect>
                 <DropShadowEffect Color="#2D1E14" Direction="315" ShadowDepth="6" BlurRadius="0" Opacity="0.9" />
             </Border.Effect>
@@ -94,19 +124,37 @@
                            Margin="0,0,0,6" />
                 <ComboBox x:Name="CmbDayOfWeek"
                           Padding="8,6"
+                          Height="34"
                           Margin="0,0,0,14"
-                          SelectionChanged="CmbInputs_SelectionChanged" />
+                          SelectionChanged="CmbDayOfWeek_SelectionChanged" />
 
-                <!-- Start Time -->
-                <TextBlock Text="START TIME"
+                <!-- Start Time (Text input with any minute support) -->
+                <TextBlock Text="START TIME (e.g. 09:40, 10:50, 2:30 PM)"
                            FontFamily="{StaticResource PixelFont}"
                            FontSize="8"
                            Foreground="#8D6E57"
                            Margin="0,0,0,6" />
-                <ComboBox x:Name="CmbStartTime"
-                          Padding="8,6"
-                          Margin="0,0,0,14"
-                          SelectionChanged="CmbInputs_SelectionChanged" />
+                <TextBox x:Name="TxtStartTime"
+                         Text="09:00 AM"
+                         Padding="10,8"
+                         FontSize="13"
+                         FontWeight="SemiBold"
+                         Background="#FFFFFF"
+                         BorderBrush="#2D1E14"
+                         BorderThickness="2"
+                         Margin="0,0,0,6"
+                         TextChanged="TxtStartTime_TextChanged" />
+
+                <!-- Quick Presets -->
+                <WrapPanel Margin="0,0,0,14">
+                    <Button Content="08:30" Style="{StaticResource QuickChipStyle}" Click="BtnPreset_Click" Tag="08:30" />
+                    <Button Content="09:00" Style="{StaticResource QuickChipStyle}" Click="BtnPreset_Click" Tag="09:00" />
+                    <Button Content="09:40" Style="{StaticResource QuickChipStyle}" Click="BtnPreset_Click" Tag="09:40" />
+                    <Button Content="10:50" Style="{StaticResource QuickChipStyle}" Click="BtnPreset_Click" Tag="10:50" />
+                    <Button Content="11:40" Style="{StaticResource QuickChipStyle}" Click="BtnPreset_Click" Tag="11:40" />
+                    <Button Content="13:30" Style="{StaticResource QuickChipStyle}" Click="BtnPreset_Click" Tag="13:30" />
+                    <Button Content="14:00" Style="{StaticResource QuickChipStyle}" Click="BtnPreset_Click" Tag="14:00" />
+                </WrapPanel>
 
                 <!-- End Time Info (Derived) -->
                 <Border Background="#FFF8E7"
@@ -144,7 +192,7 @@
                                    Foreground="#D32F2F"
                                    FontWeight="SemiBold"
                                    TextWrapping="Wrap"
-                                   MaxWidth="300" />
+                                   MaxWidth="320" />
                     </StackPanel>
                 </Border>
 
@@ -153,7 +201,7 @@
                     <Button Content="CANCEL"
                             Style="{StaticResource PixelButtonStyle}"
                             Click="BtnCancel_Click"
-                            Margin="0,0,8,0" />
+                            Margin="0,0,10,0" />
                     <Button Content="+ ADD SLOT"
                             Style="{StaticResource PixelPrimaryButtonStyle}"
                             Click="BtnAddSlot_Click" />

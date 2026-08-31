@@ -2,10 +2,12 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Media;
 using PixelDogReminders.Models;
 using WpfMessageBox = System.Windows.MessageBox;
 using WpfColor = System.Windows.Media.Color;
+using WpfButton = System.Windows.Controls.Button;
 
 namespace PixelDogReminders.Views.Dialogs;
 
@@ -28,24 +30,14 @@ public partial class SubjectEditDialog : Window
     {
         _existingSubject = existingSubject;
         _allExistingSubjects = allExistingSubjects ?? new List<Subject>();
-        _defaultDurationMinutes = defaultDurationMinutes;
+        _defaultDurationMinutes = defaultDurationMinutes > 0 ? defaultDurationMinutes : 60;
 
         InitializeComponent();
 
-        PopulateDurations();
         LoadSubjectData();
 
         _isInitializing = false;
         RefreshSlotsList();
-    }
-
-    private void PopulateDurations()
-    {
-        var durations = new[] { 30, 45, 50, 60, 75, 90, 100, 120, 150, 180 };
-        foreach (var d in durations)
-        {
-            CmbDuration.Items.Add(new DurationItem(d, $"{d} minutes"));
-        }
     }
 
     private void LoadSubjectData()
@@ -54,23 +46,10 @@ public partial class SubjectEditDialog : Window
         {
             TxtDialogTitle.Text = "✏️ EDIT SUBJECT";
             TxtSubjectName.Text = _existingSubject.Name;
+            TxtDuration.Text = _existingSubject.DurationMinutes.ToString();
             TxtRoom.Text = _existingSubject.Room ?? "";
             _assignedColor = _existingSubject.Color;
             BtnDeleteSubject.Visibility = Visibility.Visible;
-
-            // Select matching duration
-            foreach (DurationItem item in CmbDuration.Items)
-            {
-                if (item.Minutes == _existingSubject.DurationMinutes)
-                {
-                    CmbDuration.SelectedItem = item;
-                    break;
-                }
-            }
-            if (CmbDuration.SelectedItem == null)
-            {
-                CmbDuration.SelectedIndex = 3; // 60 min default
-            }
 
             // Clone existing slots
             if (_existingSubject.Slots != null)
@@ -90,22 +69,9 @@ public partial class SubjectEditDialog : Window
         else
         {
             TxtDialogTitle.Text = "📚 ADD SUBJECT";
+            TxtDuration.Text = _defaultDurationMinutes.ToString();
             var usedColors = _allExistingSubjects.Select(s => s.Color);
             _assignedColor = SubjectColorPalette.Next(usedColors);
-
-            // Select default duration
-            foreach (DurationItem item in CmbDuration.Items)
-            {
-                if (item.Minutes == _defaultDurationMinutes)
-                {
-                    CmbDuration.SelectedItem = item;
-                    break;
-                }
-            }
-            if (CmbDuration.SelectedItem == null)
-            {
-                CmbDuration.SelectedIndex = 3; // 60 min default
-            }
         }
 
         UpdateColorChip();
@@ -142,17 +108,25 @@ public partial class SubjectEditDialog : Window
 
     private int GetCurrentDuration()
     {
-        if (CmbDuration.SelectedItem is DurationItem item)
+        if (int.TryParse(TxtDuration?.Text?.Trim(), out int val) && val > 0 && val <= 480)
         {
-            return item.Minutes;
+            return val;
         }
         return _defaultDurationMinutes;
     }
 
-    private void CmbDuration_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
+    private void TxtDuration_TextChanged(object sender, TextChangedEventArgs e)
     {
         if (_isInitializing) return;
         RefreshSlotsList();
+    }
+
+    private void BtnDurationPreset_Click(object sender, RoutedEventArgs e)
+    {
+        if (sender is WpfButton btn && btn.Tag is string tag)
+        {
+            TxtDuration.Text = tag;
+        }
     }
 
     private void BtnAddSlot_Click(object sender, RoutedEventArgs e)
@@ -211,6 +185,13 @@ public partial class SubjectEditDialog : Window
             return;
         }
 
+        if (!int.TryParse(TxtDuration.Text?.Trim(), out int duration) || duration <= 0 || duration > 480)
+        {
+            WpfMessageBox.Show("Please enter a valid class duration in minutes (e.g. 50, 60, 90).", "Invalid Duration", MessageBoxButton.OK, MessageBoxImage.Information);
+            TxtDuration.Focus();
+            return;
+        }
+
         var subjectId = _existingSubject?.Id ?? Guid.NewGuid();
         foreach (var s in _pendingSlots)
         {
@@ -221,7 +202,7 @@ public partial class SubjectEditDialog : Window
         {
             Id = subjectId,
             Name = name,
-            DurationMinutes = GetCurrentDuration(),
+            DurationMinutes = duration,
             Room = TxtRoom.Text?.Trim() ?? "",
             Color = _assignedColor,
             Slots = _pendingSlots
@@ -235,11 +216,6 @@ public partial class SubjectEditDialog : Window
     {
         DialogResult = false;
         Close();
-    }
-
-    private record DurationItem(int Minutes, string Display)
-    {
-        public override string ToString() => Display;
     }
 
     private record SlotViewModel(Slot Slot, string DisplayText);

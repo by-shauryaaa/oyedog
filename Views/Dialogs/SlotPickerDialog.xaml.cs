@@ -1,8 +1,12 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Windows;
+using System.Windows.Controls;
 using PixelDogReminders.Models;
+using WpfButton = System.Windows.Controls.Button;
 
 namespace PixelDogReminders.Views.Dialogs;
 
@@ -32,7 +36,9 @@ public partial class SlotPickerDialog : Window
         InitializeComponent();
 
         PopulateDays(initialDay);
-        PopulateTimes(initialTime);
+
+        var start = initialTime ?? new TimeSpan(9, 0, 0);
+        TxtStartTime.Text = DateTime.Today.Add(start).ToString("hh:mm tt");
 
         _isInitializing = false;
         UpdateCalculatedEndTime();
@@ -59,56 +65,96 @@ public partial class SlotPickerDialog : Window
         CmbDayOfWeek.SelectedItem = initialDay ?? DayOfWeek.Monday;
     }
 
-    private void PopulateTimes(TimeSpan? initialTime)
-    {
-        // 6:00 AM to 10:00 PM in 15-min increments
-        var targetTime = initialTime ?? new TimeSpan(9, 0, 0);
-        int selectedIndex = 0;
-
-        for (int h = 6; h <= 22; h++)
-        {
-            for (int m = 0; m < 60; m += 15)
-            {
-                if (h == 22 && m > 0) break;
-                var ts = new TimeSpan(h, m, 0);
-                var display = DateTime.Today.Add(ts).ToString("hh:mm tt (HH:mm)");
-                int idx = CmbStartTime.Items.Add(new TimeItem(ts, display));
-
-                if (ts.Hours == targetTime.Hours && Math.Abs(ts.Minutes - targetTime.Minutes) < 15)
-                {
-                    selectedIndex = idx;
-                }
-            }
-        }
-
-        CmbStartTime.SelectedIndex = selectedIndex >= 0 ? selectedIndex : 0;
-    }
-
-    private void CmbInputs_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
+    private void CmbDayOfWeek_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
         if (_isInitializing) return;
         PnlConflict.Visibility = Visibility.Collapsed;
         UpdateCalculatedEndTime();
     }
 
+    private void TxtStartTime_TextChanged(object sender, TextChangedEventArgs e)
+    {
+        if (_isInitializing) return;
+        PnlConflict.Visibility = Visibility.Collapsed;
+        UpdateCalculatedEndTime();
+    }
+
+    private void BtnPreset_Click(object sender, RoutedEventArgs e)
+    {
+        if (sender is WpfButton btn && btn.Tag is string timeStr)
+        {
+            if (TryParseTime(timeStr, out var parsed))
+            {
+                TxtStartTime.Text = DateTime.Today.Add(parsed).ToString("hh:mm tt");
+            }
+            else
+            {
+                TxtStartTime.Text = timeStr;
+            }
+        }
+    }
+
     private void UpdateCalculatedEndTime()
     {
-        if (CmbStartTime.SelectedItem is TimeItem item)
+        if (TryParseTime(TxtStartTime.Text, out var startTime))
         {
-            var end = item.Time.Add(TimeSpan.FromMinutes(_durationMinutes));
+            var end = startTime.Add(TimeSpan.FromMinutes(_durationMinutes));
             TxtCalculatedEndTime.Text = DateTime.Today.Add(end).ToString("hh:mm tt (HH:mm)");
         }
+        else
+        {
+            TxtCalculatedEndTime.Text = "--:--";
+        }
+    }
+
+    private bool TryParseTime(string input, out TimeSpan time)
+    {
+        time = TimeSpan.Zero;
+        if (string.IsNullOrWhiteSpace(input)) return false;
+
+        input = input.Trim();
+
+        // 1. Try standard DateTime parsing (handles "10:50", "9:40", "10:50 AM", "2:30 PM", "09:40", etc.)
+        if (DateTime.TryParse(input, CultureInfo.CurrentCulture, DateTimeStyles.None, out var dt) ||
+            DateTime.TryParse(input, CultureInfo.InvariantCulture, DateTimeStyles.None, out dt))
+        {
+            time = dt.TimeOfDay;
+            return true;
+        }
+
+        // 2. Try TimeSpan parse
+        if (TimeSpan.TryParse(input, out var ts))
+        {
+            time = ts;
+            return true;
+        }
+
+        // 3. Handle patterns like "9am", "9pm", "10.50", "9 40"
+        var clean = input.Replace(".", ":").Replace(" ", ":").Trim();
+        if (DateTime.TryParse(clean, out var dtClean))
+        {
+            time = dtClean.TimeOfDay;
+            return true;
+        }
+
+        return false;
     }
 
     private void BtnAddSlot_Click(object sender, RoutedEventArgs e)
     {
-        if (CmbDayOfWeek.SelectedItem is not DayOfWeek selectedDay ||
-            CmbStartTime.SelectedItem is not TimeItem selectedTimeItem)
+        if (CmbDayOfWeek.SelectedItem is not DayOfWeek selectedDay)
         {
             return;
         }
 
-        var start = selectedTimeItem.Time;
+        if (!TryParseTime(TxtStartTime.Text, out var start))
+        {
+            TxtConflictWarning.Text = "Please enter a valid start time (e.g. 10:50 AM, 9:40, 14:30).";
+            PnlConflict.Visibility = Visibility.Visible;
+            TxtStartTime.Focus();
+            return;
+        }
+
         var end = start.Add(TimeSpan.FromMinutes(_durationMinutes));
 
         // Overlap validation across all existing subjects and pending slots for the same day
@@ -170,10 +216,5 @@ public partial class SlotPickerDialog : Window
     {
         DialogResult = false;
         Close();
-    }
-
-    private record TimeItem(TimeSpan Time, string Display)
-    {
-        public override string ToString() => Display;
     }
 }
