@@ -1,5 +1,6 @@
 using System;
 using System.Windows;
+using System.Windows.Threading;
 using PixelDogReminders.Models;
 using PixelDogReminders.Services;
 using WpfComboBoxItem = System.Windows.Controls.ComboBoxItem;
@@ -231,5 +232,109 @@ public partial class SettingsTab : WpfControl
         };
 
         _popupService.ShowPopup("Test Companion", testMsg, selected);
+    }
+
+    public event EventHandler<string>? DisplayNameChanged;
+    private int _madeForAbhishekClickCount = 0;
+    private DispatcherTimer? _clickResetTimer;
+
+    private void PnlMadeForAbhishek_Click(object sender, System.Windows.Input.MouseButtonEventArgs e)
+    {
+        TriggerConfettiBurst(25);
+
+        _madeForAbhishekClickCount++;
+
+        _clickResetTimer?.Stop();
+        _clickResetTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(3) };
+        _clickResetTimer.Tick += (s, ev) =>
+        {
+            _clickResetTimer.Stop();
+            _madeForAbhishekClickCount = 0;
+        };
+        _clickResetTimer.Start();
+
+        if (_madeForAbhishekClickCount >= 4)
+        {
+            _clickResetTimer.Stop();
+            _madeForAbhishekClickCount = 0;
+
+            var (settings, reminders) = _persistence.LoadData();
+            var dlg = new Dialogs.NameChangeDialog(settings.DisplayName)
+            {
+                Owner = Window.GetWindow(this)
+            };
+
+            if (dlg.ShowDialog() == true)
+            {
+                settings.DisplayName = dlg.ResultDisplayName;
+                _persistence.SaveData(settings, reminders);
+
+                DisplayNameChanged?.Invoke(this, settings.DisplayName);
+                TriggerConfettiBurst(50); // Big celebration!
+            }
+        }
+    }
+
+    private void TriggerConfettiBurst(int particleCount = 25)
+    {
+        double width = ConfettiCanvas.ActualWidth > 0 ? ConfettiCanvas.ActualWidth : 600;
+        double height = ConfettiCanvas.ActualHeight > 0 ? ConfettiCanvas.ActualHeight : 500;
+
+        var colors = new[]
+        {
+            System.Windows.Media.Color.FromRgb(255, 75, 110),
+            System.Windows.Media.Color.FromRgb(255, 215, 0),
+            System.Windows.Media.Color.FromRgb(50, 200, 255),
+            System.Windows.Media.Color.FromRgb(150, 240, 60),
+            System.Windows.Media.Color.FromRgb(210, 90, 255),
+            System.Windows.Media.Color.FromRgb(255, 140, 40)
+        };
+
+        var rng = new Random();
+
+        for (int i = 0; i < particleCount; i++)
+        {
+            var p = new System.Windows.Shapes.Rectangle
+            {
+                Width = rng.Next(6, 12),
+                Height = rng.Next(6, 12),
+                Fill = new System.Windows.Media.SolidColorBrush(colors[rng.Next(colors.Length)]),
+                RenderTransformOrigin = new System.Windows.Point(0.5, 0.5)
+            };
+
+            double startX = (width / 2.0) + rng.Next(-180, 180);
+            double startY = height - 50 + rng.Next(-20, 20);
+            double endX = startX + rng.Next(-80, 80);
+            double endY = rng.Next(30, 200);
+
+            System.Windows.Controls.Canvas.SetLeft(p, startX);
+            System.Windows.Controls.Canvas.SetTop(p, startY);
+
+            ConfettiCanvas.Children.Add(p);
+
+            // Animate upward arc then fall
+            var animY = new System.Windows.Media.Animation.DoubleAnimation
+            {
+                From = startY,
+                To = -20,
+                Duration = TimeSpan.FromMilliseconds(rng.Next(1200, 2000)),
+                EasingFunction = new System.Windows.Media.Animation.CubicEase { EasingMode = System.Windows.Media.Animation.EasingMode.EaseOut }
+            };
+
+            var animFade = new System.Windows.Media.Animation.DoubleAnimation
+            {
+                From = 1.0,
+                To = 0.0,
+                Duration = animY.Duration
+            };
+
+            animFade.Completed += (s, ev) =>
+            {
+                ConfettiCanvas.Children.Remove(p);
+            };
+
+            p.BeginAnimation(OpacityProperty, animFade);
+            p.BeginAnimation(System.Windows.Controls.Canvas.TopProperty, animY);
+        }
     }
 }

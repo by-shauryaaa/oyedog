@@ -1,7 +1,9 @@
 using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
 using System.IO;
+using System.Linq;
 using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
@@ -43,6 +45,7 @@ public partial class MainWindow : Window
     private readonly SettingsTab _settingsTab;
 
     private Forms.NotifyIcon? _notifyIcon;
+    private Forms.ContextMenuStrip? _trayMenu;
     private Forms.ToolStripMenuItem? _pauseMenuItem;
     private bool _isExiting = false;
 
@@ -76,6 +79,13 @@ public partial class MainWindow : Window
         _remindersTab.NavigateToMatchesRequested += (s, e) =>
         {
             NavigateTo(NavTarget.Matches);
+        };
+
+        // Wire DisplayName changes
+        _settingsTab.DisplayNameChanged += (s, newName) =>
+        {
+            ApplyDisplayName();
+            _homeTab.UpdateGreeting();
         };
 
         // 3. Preload sidebar dog sprite frames
@@ -120,7 +130,7 @@ public partial class MainWindow : Window
         _sidebarClockTimer.Start();
         SidebarClock.Text = DateTime.Now.ToString("hh:mm tt");
 
-        // 5. Setup Tray NotifyIcon
+        // 5. Setup Tray NotifyIcon & Unified Schedule Menu
         SetupSystemTray();
 
         // 6. Ensure registered as Windows Startup App by default
@@ -129,9 +139,10 @@ public partial class MainWindow : Window
         // 7. Start Scheduler
         _scheduler.Start();
 
-        // 8. Restore Sidebar State & Navigate to Home
+        // 8. Restore Sidebar State & Set Display Name
         var (settings, _) = _persistence.LoadData();
         ApplySidebarState(settings.SidebarCollapsed, animate: false);
+        ApplyDisplayName();
         NavigateTo(NavTarget.Home);
 
         // 9. Handle startup launch mode vs normal launch mode
@@ -147,6 +158,18 @@ public partial class MainWindow : Window
             // Check walk-in greeting on launch (will trigger if morning and hasn't run today)
             _walkInService.CheckAndTriggerWalkIn(force: false);
         };
+    }
+
+    public void ApplyDisplayName()
+    {
+        var (settings, _) = _persistence.LoadData();
+        string name = string.IsNullOrWhiteSpace(settings.DisplayName) ? "Abhishek" : settings.DisplayName.Trim();
+
+        Title = $"Oye Dog — {name}'s Companion";
+        if (_notifyIcon != null)
+        {
+            _notifyIcon.Text = $"Oye Dog — {name}'s Companion";
+        }
     }
 
     public void NavigateTo(NavTarget target)
@@ -278,10 +301,13 @@ public partial class MainWindow : Window
 
     private void SetupSystemTray()
     {
+        var (settings, _) = _persistence.LoadData();
+        string name = string.IsNullOrWhiteSpace(settings.DisplayName) ? "Abhishek" : settings.DisplayName.Trim();
+
         _notifyIcon = new Forms.NotifyIcon
         {
             Visible = true,
-            Text = "Oye Dog — Abhishek's Companion"
+            Text = $"Oye Dog — {name}'s Companion"
         };
 
         // Try load app icon
@@ -304,10 +330,143 @@ public partial class MainWindow : Window
             _notifyIcon.Icon = System.Drawing.SystemIcons.Application;
         }
 
-        var contextMenu = new Forms.ContextMenuStrip();
+        _trayMenu = new Forms.ContextMenuStrip();
+        _trayMenu.Opening += (s, e) => RebuildTrayScheduleMenu();
+
+        // Left-Click & Right-Click both trigger the unified schedule menu
+        _notifyIcon.MouseUp += (s, e) =>
+        {
+            if (e.Button == Forms.MouseButtons.Left)
+            {
+                RebuildTrayScheduleMenu();
+                _trayMenu.Show(Forms.Cursor.Position);
+            }
+        };
+
+        _notifyIcon.ContextMenuStrip = _trayMenu;
+        _notifyIcon.DoubleClick += (s, e) => ShowAndRestore();
+    }
+
+    private class TrayScheduleItem
+    {
+        public TimeSpan StartTime { get; set; }
+        public string Text { get; set; } = "";
+        public bool IsInProgress { get; set; }
+    }
+
+    private void RebuildTrayScheduleMenu()
+    {
+        if (_trayMenu == null) return;
+
+        _trayMenu.Items.Clear();
+
+        var today = DateTime.Today;
+        var nowTime = DateTime.Now.TimeOfDay;
+
+        // 1. Header Item
+        var headerItem = new Forms.ToolStripMenuItem($"📅 Today's Schedule — {today:ddd, MMM d}")
+        {
+            Enabled = false,
+            Font = new Font(_trayMenu.Font, System.Drawing.FontStyle.Bold)
+        };
+        _trayMenu.Items.Add(headerItem);
+        _trayMenu.Items.Add(new Forms.ToolStripSeparator());
+
+        var scheduleItems = new List<TrayScheduleItem>();
+
+        // 2. Load today's classes
+        try
+        {
+            var subjects = _persistence.LoadSubjects();
+            foreach (var subject in subjects)
+            {
+                foreach (var slot in subject.Slots.Where(s => s.DayOfWeek == today.DayOfWeek))
+                {
+                    var endTime = slot.GetEndTime(subject.DurationMinutes);
+                    bool inProgress = (nowTime >= slot.StartTime && nowTime < endTime);
+
+                    string startStr = DateTime.Today.Add(slot.StartTime).ToString("hh:mm tt");
+                    string endStr = DateTime.Today.Add(endTime).ToString("hh:mm tt");
+                    string roomStr = string.IsNullOrWhiteSpace(subject.Room) ? "" : $" ({subject.Room})";
+
+                    string prefix = inProgress ? "▶ " : "  ";
+                    string suffix = inProgress ? " [NOW]" : "";
+                    string itemText = $"{prefix}{startStr} - {endStr} • {subject.Name}{roomStr}{suffix}";
+
+                    scheduleItems.Add(new TrayScheduleItem
+                    {
+                        StartTime = slot.StartTime,
+                        Text = itemText,
+                        IsInProgress = inProgress
+                    });
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"Failed loading timetable for tray menu: {ex.Message}");
+        }
+
+        // 3. Load today's sports matches
+        try
+        {
+            var sportsItems = _sportsService.GetCachedSchedule();
+            foreach (var sItem in sportsItems)
+            {
+                if (sItem.LocalDateTime.Date == today)
+                {
+                    var startTime = sItem.LocalDateTime.TimeOfDay;
+                    var endTime = startTime.Add(TimeSpan.FromHours(sItem.IsF1 ? 1.5 : 2.0));
+                    bool inProgress = (nowTime >= startTime && nowTime < endTime);
+
+                    string prefix = inProgress ? "▶ " : "  ";
+                    string suffix = inProgress ? " [NOW]" : "";
+                    string icon = sItem.IsF1 ? "🏎️" : "⚽";
+
+                    scheduleItems.Add(new TrayScheduleItem
+                    {
+                        StartTime = startTime,
+                        Text = $"{prefix}{sItem.FormattedTime} • {icon} {sItem.Title} ({sItem.Subtitle}){suffix}",
+                        IsInProgress = inProgress
+                    });
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"Failed loading sports for tray menu: {ex.Message}");
+        }
+
+        // 4. Sort and populate schedule items
+        if (scheduleItems.Count > 0)
+        {
+            foreach (var item in scheduleItems.OrderBy(i => i.StartTime))
+            {
+                var menuItem = new Forms.ToolStripMenuItem(item.Text)
+                {
+                    Enabled = false
+                };
+                if (item.IsInProgress)
+                {
+                    menuItem.Font = new Font(_trayMenu.Font, System.Drawing.FontStyle.Bold);
+                }
+                _trayMenu.Items.Add(menuItem);
+            }
+        }
+        else
+        {
+            var emptyItem = new Forms.ToolStripMenuItem("  ✨ Nothing scheduled today")
+            {
+                Enabled = false
+            };
+            _trayMenu.Items.Add(emptyItem);
+        }
+
+        // 5. Standard Action Items
+        _trayMenu.Items.Add(new Forms.ToolStripSeparator());
 
         var openItem = new Forms.ToolStripMenuItem("Open Oye Dog");
-        openItem.Font = new Font(openItem.Font, System.Drawing.FontStyle.Bold);
+        openItem.Font = new Font(_trayMenu.Font, System.Drawing.FontStyle.Bold);
         openItem.Click += (s, e) => ShowAndRestore();
 
         var triggerWalkInItem = new Forms.ToolStripMenuItem("Dogu, Walk In! 🐾");
@@ -316,7 +475,7 @@ public partial class MainWindow : Window
             _walkInService.CheckAndTriggerWalkIn(force: true);
         };
 
-        _pauseMenuItem = new Forms.ToolStripMenuItem("Pause Reminders");
+        _pauseMenuItem = new Forms.ToolStripMenuItem(_scheduler.IsPaused ? "Resume Reminders" : "Pause Reminders");
         _pauseMenuItem.Click += (s, e) =>
         {
             _scheduler.IsPaused = !_scheduler.IsPaused;
@@ -327,20 +486,17 @@ public partial class MainWindow : Window
         exitItem.Click += (s, e) =>
         {
             _isExiting = true;
-            _notifyIcon.Visible = false;
+            _notifyIcon!.Visible = false;
             _notifyIcon.Dispose();
             WpfApp.Current.Shutdown();
         };
 
-        contextMenu.Items.Add(openItem);
-        contextMenu.Items.Add(triggerWalkInItem);
-        contextMenu.Items.Add(new Forms.ToolStripSeparator());
-        contextMenu.Items.Add(_pauseMenuItem);
-        contextMenu.Items.Add(new Forms.ToolStripSeparator());
-        contextMenu.Items.Add(exitItem);
-
-        _notifyIcon.ContextMenuStrip = contextMenu;
-        _notifyIcon.DoubleClick += (s, e) => ShowAndRestore();
+        _trayMenu.Items.Add(openItem);
+        _trayMenu.Items.Add(triggerWalkInItem);
+        _trayMenu.Items.Add(new Forms.ToolStripSeparator());
+        _trayMenu.Items.Add(_pauseMenuItem);
+        _trayMenu.Items.Add(new Forms.ToolStripSeparator());
+        _trayMenu.Items.Add(exitItem);
     }
 
     public void ShowAndRestore()

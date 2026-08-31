@@ -24,6 +24,21 @@ public class SportsDataService
         public List<ScheduleItem> Items { get; set; } = new();
     }
 
+    public List<ScheduleItem> GetCachedSchedule()
+    {
+        var cachedJson = _persistence.LoadSportsCache();
+        if (!string.IsNullOrEmpty(cachedJson))
+        {
+            try
+            {
+                var cached = JsonSerializer.Deserialize<SportsCacheData>(cachedJson);
+                if (cached != null) return cached.Items;
+            }
+            catch { }
+        }
+        return new List<ScheduleItem>();
+    }
+
     public async Task<List<ScheduleItem>> GetUpcomingScheduleAsync(string? footballApiKey, bool forceRefresh = false)
     {
         // Check cache first (valid for 12 hours)

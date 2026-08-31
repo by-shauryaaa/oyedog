@@ -31,4 +31,5 @@ public class AppSettings
 
     // Navigation / UI
     public bool SidebarCollapsed { get; set; } = false;
+    public string DisplayName { get; set; } = "Abhishek";
 }

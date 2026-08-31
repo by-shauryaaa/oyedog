@@ -269,12 +269,21 @@
                 BorderThickness="1"
                 CornerRadius="3"
                 Padding="10,8"
-                Margin="0,8,0,0">
+                Margin="0,8,0,0"
+                Cursor="Hand"
+                ToolTip="♥ Click for celebration!"
+                MouseLeftButtonUp="PnlMadeForAbhishek_Click">
             <TextBlock Text="♥ made for abhishek ♥"
                        FontFamily="{StaticResource PixelFont}"
                        FontSize="9"
                        Foreground="#9E5B23"
                        HorizontalAlignment="Center" />
         </Border>
+
+        <!-- Confetti Particle Overlay Canvas -->
+        <Canvas x:Name="ConfettiCanvas"
+                Grid.RowSpan="2"
+                IsHitTestVisible="False"
+                ClipToBounds="True" />
     </Grid>
 </UserControl>

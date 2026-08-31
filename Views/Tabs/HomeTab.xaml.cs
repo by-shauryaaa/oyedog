@@ -250,33 +250,35 @@ public partial class HomeTab : WpfControl
     public void UpdateGreeting()
     {
         var now = DateTime.Now;
+        var (settings, _) = _persistence.LoadData();
+        string name = string.IsNullOrWhiteSpace(settings.DisplayName) ? "Abhishek" : settings.DisplayName.Trim();
 
         // Birthday Easter Egg on August 25
         if (now.Month == 8 && now.Day == 25)
         {
-            TxtGreeting.Text = "🎂 Happy Birthday Abhishek ♥ 🐶";
+            TxtGreeting.Text = $"🎂 Happy Birthday {name} ♥ 🐶";
             TxtSubGreeting.Text = "Wishing you a legendary year ahead filled with joy, goals, and fast laps!";
             return;
         }
 
         if (now.Hour >= 5 && now.Hour < 12)
         {
-            TxtGreeting.Text = "Good morning, Abhishek ☀️";
+            TxtGreeting.Text = $"Good morning, {name} ☀️";
             TxtSubGreeting.Text = "Ready to conquer the day? Don't forget your habits!";
         }
         else if (now.Hour >= 12 && now.Hour < 18)
         {
-            TxtGreeting.Text = "Hey Abhishek 🐾";
+            TxtGreeting.Text = $"Hey {name} 🐾";
             TxtSubGreeting.Text = "Hope your afternoon is going great. Stay hydrated!";
         }
         else if (now.Hour >= 18 && now.Hour < 21)
         {
-            TxtGreeting.Text = "Good evening, Abhishek 🌆";
+            TxtGreeting.Text = $"Good evening, {name} 🌆";
             TxtSubGreeting.Text = "Time to wind down or catch up on sports!";
         }
         else
         {
-            TxtGreeting.Text = "Still up, Abhishek? 🌙";
+            TxtGreeting.Text = $"Still up, {name}? 🌙";
             TxtSubGreeting.Text = "Remember to get some good rest soon!";
         }
     }
