@@ -28,4 +28,7 @@ public class AppSettings
     public int DefaultClassDurationMinutes { get; set; } = 60;
     public int LeadTimeMinutes { get; set; } = 10;
     public FlagPosition ClassFlagPosition { get; set; } = FlagPosition.Top;
+
+    // Navigation / UI
+    public bool SidebarCollapsed { get; set; } = false;
 }

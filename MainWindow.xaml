@@ -2,7 +2,7 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="Oye Dog — Abhishek's Companion"
-        Width="780"
+        Width="820"
         Height="640"
         MinWidth="720"
         MinHeight="540"
@@ -13,32 +13,68 @@
     <Window.Resources>
         <FontFamily x:Key="PixelFont">pack://application:,,,/Assets/Fonts/#Press Start 2P</FontFamily>
 
-        <!-- Tab Item Custom Style -->
-        <Style x:Key="PixelTabItemStyle" TargetType="TabItem">
+        <!-- Sidebar Collapse Toggle Button -->
+        <Style x:Key="CollapseToggleButtonStyle" TargetType="Button">
             <Setter Property="FontFamily" Value="{StaticResource PixelFont}" />
-            <Setter Property="FontSize" Value="9" />
-            <Setter Property="Foreground" Value="#5A3E2B" />
-            <Setter Property="Padding" Value="16,10" />
-            <Setter Property="Margin" Value="0,0,4,0" />
+            <Setter Property="FontSize" Value="8" />
+            <Setter Property="Foreground" Value="#FFD700" />
+            <Setter Property="Background" Value="#2D1E14" />
+            <Setter Property="BorderBrush" Value="#5A3E2B" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="Width" Value="28" />
+            <Setter Property="Height" Value="28" />
+            <Setter Property="Cursor" Value="Hand" />
             <Setter Property="Template">
                 <Setter.Value>
-                    <ControlTemplate TargetType="TabItem">
-                        <Border x:Name="TabBorder"
-                                Background="#EBE3D8"
-                                BorderBrush="#C7B7A6"
-                                BorderThickness="2,2,2,0"
-                                CornerRadius="4,4,0,0"
-                                Padding="{TemplateBinding Padding}">
-                            <ContentPresenter ContentSource="Header" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="border"
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="3">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
                         </Border>
                         <ControlTemplate.Triggers>
-                            <Trigger Property="IsSelected" Value="True">
-                                <Setter TargetName="TabBorder" Property="Background" Value="#FAF7F2" />
-                                <Setter TargetName="TabBorder" Property="BorderBrush" Value="#8D6E57" />
-                                <Setter Property="Foreground" Value="#2D1E14" />
-                            </Trigger>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="TabBorder" Property="Background" Value="#FFF8E7" />
+                                <Setter TargetName="border" Property="Background" Value="#5A3E2B" />
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="border" Property="Background" Value="#1A100A" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Sidebar Nav Row Button Style -->
+        <Style x:Key="SidebarNavButtonStyle" TargetType="Button">
+            <Setter Property="FontFamily" Value="{StaticResource PixelFont}" />
+            <Setter Property="FontSize" Value="9" />
+            <Setter Property="Foreground" Value="#D8C5B2" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="Margin" Value="0,0,0,6" />
+            <Setter Property="MinHeight" Value="38" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="navBorder"
+                                Background="#2A1B14"
+                                BorderBrush="#5A3E2B"
+                                BorderThickness="2"
+                                CornerRadius="4"
+                                Padding="8,8">
+                            <ContentPresenter HorizontalAlignment="Stretch" VerticalAlignment="Center" />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="navBorder" Property="Background" Value="#4D3325" />
+                                <Setter TargetName="navBorder" Property="BorderBrush" Value="#8D6E57" />
+                            </Trigger>
+                            <Trigger Property="Tag" Value="Active">
+                                <Setter TargetName="navBorder" Property="Background" Value="#FFD700" />
+                                <Setter TargetName="navBorder" Property="BorderBrush" Value="#2D1E14" />
+                                <Setter Property="Foreground" Value="#2D1E14" />
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -47,91 +83,182 @@
         </Style>
     </Window.Resources>
 
-    <Grid>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="*" />
-        </Grid.RowDefinitions>
+    <Grid Background="#FAF7F2">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
 
-        <!-- Top Header Bar with Responsive Columns -->
-        <Border Grid.Row="0"
+        <!-- 1. Left Vertical Sidebar -->
+        <Border x:Name="SidebarBorder"
+                Grid.Column="0"
+                Width="200"
                 Background="#3D271D"
-                Padding="16,12">
+                BorderBrush="#5A3E2B"
+                BorderThickness="0,0,3,0"
+                SnapsToDevicePixels="True">
             <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="Auto" />
-                    <ColumnDefinition Width="*" />
-                    <ColumnDefinition Width="Auto" />
-                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
 
-                <!-- Dog Mascot Thumbnail in Header -->
-                <Image Source="pack://application:,,,/Assets/Sprites/idle_0.png"
-                       Width="32"
-                       Height="32"
-                       Margin="0,0,12,0"
-                       VerticalAlignment="Center"
-                       RenderOptions.BitmapScalingMode="NearestNeighbor" />
+                <!-- Top Header: Logo / Branding & Toggle Button -->
+                <Grid Grid.Row="0" Margin="10,12,10,10">
+                    <!-- Branding (Expanded only) -->
+                    <StackPanel x:Name="PnlBranding"
+                                Orientation="Horizontal"
+                                VerticalAlignment="Center"
+                                HorizontalAlignment="Left">
+                        <Image Source="pack://application:,,,/Assets/Sprites/idle_0.png"
+                               Width="24"
+                               Height="24"
+                               RenderOptions.BitmapScalingMode="NearestNeighbor"
+                               VerticalAlignment="Center" />
+                        <TextBlock Text="OYE DOG"
+                                   FontFamily="{StaticResource PixelFont}"
+                                   FontSize="10"
+                                   FontWeight="Bold"
+                                   Foreground="#FFD700"
+                                   VerticalAlignment="Center"
+                                   Margin="8,0,0,0" />
+                    </StackPanel>
 
-                <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="0,0,12,0">
-                    <TextBlock Text="OYE DOG"
-                               FontFamily="{StaticResource PixelFont}"
-                               FontSize="11"
-                               Foreground="#FFD700"
-                               FontWeight="Bold"
-                               TextWrapping="Wrap" />
-                    <TextBlock Text="Your daily habit, sports, &amp; morning companion"
-                               FontSize="11"
-                               Foreground="#D8C5B2"
-                               TextWrapping="Wrap"
-                               Margin="0,2,0,0" />
-                </StackPanel>
+                    <!-- Collapse / Expand Toggle Button -->
+                    <Button x:Name="BtnToggleSidebar"
+                            Content="◀"
+                            Style="{StaticResource CollapseToggleButtonStyle}"
+                            HorizontalAlignment="Right"
+                            ToolTip="Collapse sidebar"
+                            Click="BtnToggleSidebar_Click" />
+                </Grid>
 
-                <!-- Status indicator -->
-                <Border x:Name="PnlTrayBadge"
-                        Grid.Column="2"
-                        Background="#553A2B"
-                        CornerRadius="3"
-                        Padding="8,5"
-                        VerticalAlignment="Center">
-                    <TextBlock Text="● System Tray Resident"
-                               FontSize="10"
-                               Foreground="#9FE29D" />
-                </Border>
+                <!-- Nav Items List -->
+                <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                    <StackPanel x:Name="PnlNavList" Margin="8,4,8,4">
+                        <!-- Home Icon (Visible only in collapsed mode) -->
+                        <Button x:Name="BtnNavHomeCollapsed"
+                                Style="{StaticResource SidebarNavButtonStyle}"
+                                ToolTip="🏠 Home Screen"
+                                Visibility="Collapsed"
+                                Click="BtnNavHome_Click">
+                            <TextBlock Text="🏠" FontSize="14" HorizontalAlignment="Center" />
+                        </Button>
+
+                        <!-- Reminders -->
+                        <Button x:Name="BtnNavReminders"
+                                Style="{StaticResource SidebarNavButtonStyle}"
+                                ToolTip="🐶 Habit Reminders"
+                                Click="BtnNavReminders_Click">
+                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                <TextBlock Text="🐶" FontSize="13" VerticalAlignment="Center" Margin="2,0,8,0" />
+                                <TextBlock x:Name="TxtLabelReminders" Text="Reminders" VerticalAlignment="Center" />
+                            </StackPanel>
+                        </Button>
+
+                        <!-- Matches -->
+                        <Button x:Name="BtnNavMatches"
+                                Style="{StaticResource SidebarNavButtonStyle}"
+                                ToolTip="⚽ Barca &amp; F1 Matches"
+                                Click="BtnNavMatches_Click">
+                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                <TextBlock Text="⚽" FontSize="13" VerticalAlignment="Center" Margin="2,0,8,0" />
+                                <TextBlock x:Name="TxtLabelMatches" Text="Matches" VerticalAlignment="Center" />
+                            </StackPanel>
+                        </Button>
+
+                        <!-- Timetable -->
+                        <Button x:Name="BtnNavTimetable"
+                                Style="{StaticResource SidebarNavButtonStyle}"
+                                ToolTip="📅 Timetable Schedule"
+                                Click="BtnNavTimetable_Click">
+                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                <TextBlock Text="📅" FontSize="13" VerticalAlignment="Center" Margin="2,0,8,0" />
+                                <TextBlock x:Name="TxtLabelTimetable" Text="Timetable" VerticalAlignment="Center" />
+                            </StackPanel>
+                        </Button>
+
+                        <!-- Settings -->
+                        <Button x:Name="BtnNavSettings"
+                                Style="{StaticResource SidebarNavButtonStyle}"
+                                ToolTip="⚙️ Settings &amp; Configuration"
+                                Click="BtnNavSettings_Click">
+                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                <TextBlock Text="⚙️" FontSize="13" VerticalAlignment="Center" Margin="2,0,8,0" />
+                                <TextBlock x:Name="TxtLabelSettings" Text="Settings" VerticalAlignment="Center" />
+                            </StackPanel>
+                        </Button>
+                    </StackPanel>
+                </ScrollViewer>
+
+                <!-- Bottom Area: Dog + Clock Mini-Widget (Expanded) / Tray Indicator (Collapsed) -->
+                <Grid Grid.Row="2" Margin="8,4,8,12">
+                    <!-- Dog Mini-Widget (Expanded) -->
+                    <Border x:Name="PnlSidebarDogWidget"
+                            Background="#24160E"
+                            BorderBrush="#5A3E2B"
+                            BorderThickness="2"
+                            CornerRadius="5"
+                            Padding="8,8"
+                            Cursor="Hand"
+                            ToolTip="Visit your companion at Home"
+                            MouseLeftButtonUp="PnlSidebarDogWidget_MouseLeftButtonUp">
+                        <StackPanel HorizontalAlignment="Center">
+                            <!-- Mini Dog Mascot Animated Sprite -->
+                            <Image x:Name="SidebarDogSprite"
+                                   Width="40"
+                                   Height="40"
+                                   Source="pack://application:,,,/Assets/Sprites/idle_0.png"
+                                   RenderOptions.BitmapScalingMode="NearestNeighbor"
+                                   HorizontalAlignment="Center" />
+
+                            <!-- Live Digital Clock -->
+                            <TextBlock x:Name="SidebarClock"
+                                       Text="12:00 PM"
+                                       FontFamily="{StaticResource PixelFont}"
+                                       FontSize="8"
+                                       FontWeight="Bold"
+                                       Foreground="#FFD700"
+                                       HorizontalAlignment="Center"
+                                       Margin="0,6,0,2" />
+
+                            <!-- Mini Home Hint -->
+                            <TextBlock Text="♥ HOME ♥"
+                                       FontFamily="{StaticResource PixelFont}"
+                                       FontSize="6"
+                                       Foreground="#D8C5B2"
+                                       HorizontalAlignment="Center" />
+                        </StackPanel>
+                    </Border>
+
+                    <!-- Collapsed Vertical Tray Chip -->
+                    <Border x:Name="PnlSidebarTrayChip"
+                            Background="#24160E"
+                            BorderBrush="#5A3E2B"
+                            BorderThickness="1"
+                            CornerRadius="3"
+                            Padding="2,12"
+                            HorizontalAlignment="Center"
+                            ToolTip="Oye Dog is resident in system tray"
+                            Visibility="Collapsed">
+                        <TextBlock Text="● TRAY"
+                                   FontFamily="{StaticResource PixelFont}"
+                                   FontSize="7"
+                                   Foreground="#9FE29D">
+                            <TextBlock.LayoutTransform>
+                                <RotateTransform Angle="90" />
+                            </TextBlock.LayoutTransform>
+                        </TextBlock>
+                    </Border>
+                </Grid>
             </Grid>
         </Border>
 
-        <!-- Main Tab Control: Home | Reminders | Matches | Settings -->
-        <TabControl x:Name="MainTabControl"
-                    Grid.Row="1"
-                    Background="#FAF7F2"
-                    BorderBrush="#8D6E57"
-                    BorderThickness="0,2,0,0"
-                    Margin="12,10,12,12">
-
-            <!-- Tab 0: Home -->
-            <TabItem Header="🏠 Home" Style="{StaticResource PixelTabItemStyle}" IsSelected="True">
-                <ContentControl x:Name="HomeContent" />
-            </TabItem>
-
-            <!-- Tab 1: Reminders -->
-            <TabItem Header="🐶 Reminders" Style="{StaticResource PixelTabItemStyle}">
-                <ContentControl x:Name="RemindersContent" />
-            </TabItem>
-
-            <!-- Tab 2: Matches -->
-            <TabItem Header="⚽🏎️ Matches" Style="{StaticResource PixelTabItemStyle}">
-                <ContentControl x:Name="MatchesContent" />
-            </TabItem>
-
-            <!-- Tab 3: Timetable -->
-            <TabItem Header="📅 Timetable" Style="{StaticResource PixelTabItemStyle}">
-                <ContentControl x:Name="TimetableContent" />
-            </TabItem>
-
-            <!-- Tab 4: Settings -->
-            <TabItem Header="⚙️ Settings" Style="{StaticResource PixelTabItemStyle}">
-                <ContentControl x:Name="SettingsContent" />
-            </TabItem>
-        </TabControl>
+        <!-- 2. Main Content Area -->
+        <ContentControl x:Name="MainContent"
+                        Grid.Column="1"
+                        Background="#FAF7F2"
+                        Focusable="False" />
     </Grid>
 </Window>
