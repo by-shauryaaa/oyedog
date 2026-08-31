@@ -14,7 +14,7 @@
         <FontFamily x:Key="PixelFont">pack://application:,,,/Assets/Fonts/#Press Start 2P</FontFamily>
     </Window.Resources>
 
-    <Grid Margin="0">
+    <Grid Margin="0" ClipToBounds="False">
         <!-- 1. Simple Style (Classic Fly-by Flag) -->
         <Grid x:Name="SimpleContainer" Margin="12">
             <Border x:Name="FlagBorder"
@@ -94,75 +94,72 @@
             </StackPanel>
         </Grid>
 
-        <!-- 3. Banner Style (Billboard in Subject Color with Edge-Touching Hanging Threads) -->
-        <Grid x:Name="BannerContainer" Visibility="Collapsed" Width="400">
-            <StackPanel x:Name="PnlBannerStack" HorizontalAlignment="Center">
-                <!-- Top Threads (touching top edge of screen) -->
-                <Grid x:Name="PnlTopThreads" Height="80" Width="360" VerticalAlignment="Top" RenderTransformOrigin="0.5,0.0">
-                    <Grid.RenderTransform>
-                        <ScaleTransform x:Name="ScaleTopThreads" ScaleY="1" />
-                    </Grid.RenderTransform>
-                    <Border Width="3" Background="#3D271D" HorizontalAlignment="Left" Margin="40,0,0,0" />
-                    <Border Width="3" Background="#3D271D" HorizontalAlignment="Right" Margin="0,0,40,0" />
-                </Grid>
+        <!-- 3. Banner Style (Full-height Canvas for Continuous Falling to Screen Bottom Edge) -->
+        <Canvas x:Name="BannerContainer" Visibility="Collapsed" Width="440" ClipToBounds="False">
+            <!-- Top Threads (anchored at Y=0 of the screen) -->
+            <Canvas x:Name="PnlTopThreads" Width="380" Canvas.Left="30" Canvas.Top="0" RenderTransformOrigin="0.5,0.0">
+                <Canvas.RenderTransform>
+                    <ScaleTransform x:Name="ScaleTopThreads" ScaleY="1" />
+                </Canvas.RenderTransform>
+                <Border x:Name="LeftThreadTop" Width="3" Background="#3D271D" Canvas.Left="40" Canvas.Top="0" Height="200" />
+                <Border x:Name="RightThreadTop" Width="3" Background="#3D271D" Canvas.Right="40" Canvas.Top="0" Height="200" />
+            </Canvas>
 
-                <!-- Billboard in Subject Color -->
-                <Border x:Name="BillboardBorder"
-                        Width="380"
-                        Background="#64B5F6"
-                        BorderBrush="#2D1E14"
-                        BorderThickness="3"
-                        CornerRadius="4"
-                        Padding="16,12"
-                        SnapsToDevicePixels="True">
-                    <Border.Effect>
-                        <DropShadowEffect Color="#2D1E14" Direction="315" ShadowDepth="5" BlurRadius="0" Opacity="0.8" />
-                    </Border.Effect>
-                    <Border.RenderTransform>
-                        <TranslateTransform x:Name="TransBillboard" X="0" Y="0" />
-                    </Border.RenderTransform>
+            <!-- Billboard Plaque in Subject Color -->
+            <Border x:Name="BillboardBorder"
+                    Width="380"
+                    Canvas.Left="30"
+                    Canvas.Top="-150"
+                    Background="#64B5F6"
+                    BorderBrush="#2D1E14"
+                    BorderThickness="3"
+                    CornerRadius="4"
+                    Padding="16,12"
+                    SnapsToDevicePixels="True">
+                <Border.Effect>
+                    <DropShadowEffect Color="#2D1E14" Direction="315" ShadowDepth="5" BlurRadius="0" Opacity="0.8" />
+                </Border.Effect>
 
-                    <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
-                        <!-- Top Countdown Pill -->
-                        <Border Background="#2D1E14"
-                                CornerRadius="3"
-                                Padding="8,4"
-                                HorizontalAlignment="Center"
-                                Margin="0,0,0,6">
-                            <StackPanel Orientation="Horizontal">
-                                <TextBlock Text="🔔 " FontSize="9" VerticalAlignment="Center" />
-                                <TextBlock x:Name="TxtBannerCountdown"
-                                           Text="in 10 min"
-                                           FontFamily="{StaticResource PixelFont}"
-                                           FontSize="9"
-                                           FontWeight="Bold"
-                                           Foreground="#FFD700"
-                                           VerticalAlignment="Center" />
-                            </StackPanel>
-                        </Border>
+                <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                    <!-- Top Countdown Pill -->
+                    <Border Background="#2D1E14"
+                            CornerRadius="3"
+                            Padding="8,4"
+                            HorizontalAlignment="Center"
+                            Margin="0,0,0,6">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="🔔 " FontSize="9" VerticalAlignment="Center" />
+                            <TextBlock x:Name="TxtBannerCountdown"
+                                       Text="in 10 min"
+                                       FontFamily="{StaticResource PixelFont}"
+                                       FontSize="9"
+                                       FontWeight="Bold"
+                                       Foreground="#FFD700"
+                                       VerticalAlignment="Center" />
+                        </StackPanel>
+                    </Border>
 
-                        <!-- Large Subject Name in Billboard -->
-                        <TextBlock x:Name="TxtBannerSubject"
-                                   Text="Data Structures"
-                                   FontFamily="{StaticResource PixelFont}"
-                                   FontSize="12"
-                                   FontWeight="Bold"
-                                   Foreground="#2D1E14"
-                                   TextAlignment="Center"
-                                   TextWrapping="Wrap"
-                                   HorizontalAlignment="Center" />
-                    </StackPanel>
-                </Border>
+                    <!-- Large Subject Name in Billboard -->
+                    <TextBlock x:Name="TxtBannerSubject"
+                               Text="Data Structures"
+                               FontFamily="{StaticResource PixelFont}"
+                               FontSize="12"
+                               FontWeight="Bold"
+                               Foreground="#2D1E14"
+                               TextAlignment="Center"
+                               TextWrapping="Wrap"
+                               HorizontalAlignment="Center" />
+                </StackPanel>
+            </Border>
 
-                <!-- Bottom Threads (touching bottom edge of screen for bottom position) -->
-                <Grid x:Name="PnlBottomThreads" Height="80" Width="360" VerticalAlignment="Bottom" Visibility="Collapsed" RenderTransformOrigin="0.5,1.0">
-                    <Grid.RenderTransform>
-                        <ScaleTransform x:Name="ScaleBottomThreads" ScaleY="1" />
-                    </Grid.RenderTransform>
-                    <Border Width="3" Background="#3D271D" HorizontalAlignment="Left" Margin="40,0,0,0" />
-                    <Border Width="3" Background="#3D271D" HorizontalAlignment="Right" Margin="0,0,40,0" />
-                </Grid>
-            </StackPanel>
-        </Grid>
+            <!-- Bottom Threads (anchored to bottom edge of screen for bottom position) -->
+            <Canvas x:Name="PnlBottomThreads" Width="380" Canvas.Left="30" Visibility="Collapsed" RenderTransformOrigin="0.5,1.0">
+                <Canvas.RenderTransform>
+                    <ScaleTransform x:Name="ScaleBottomThreads" ScaleY="1" />
+                </Canvas.RenderTransform>
+                <Border x:Name="LeftThreadBottom" Width="3" Background="#3D271D" Canvas.Left="40" Canvas.Top="0" Height="200" />
+                <Border x:Name="RightThreadBottom" Width="3" Background="#3D271D" Canvas.Right="40" Canvas.Top="0" Height="200" />
+            </Canvas>
+        </Canvas>
     </Grid>
 </Window>
