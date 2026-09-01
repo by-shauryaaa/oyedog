@@ -1,5 +1,5 @@
 /* ============================================================
-   🐶 OYE DOG — BIRTHDAY LANDING PAGE SCRIPTS
+   🐶 OYE DOG — LANDING PAGE SCRIPTS
    ============================================================ */
 
 // ⚙️ CONFIGURATION: Installer download URL
@@ -7,7 +7,6 @@ const DOWNLOAD_URL = "https://drive.google.com/file/d/1o0qZ8vxxRZ21yw008sOS16XRb
 
 // Sprite Configuration
 const SPRITE_CONFIG = {
-    birthday_walk: { frames: 8, name: "Birthday Celebration 🎂", message: "🎂 Happy Birthday Abhishek! 🎉 Wishing you a legendary year filled with fast laps and goals!" },
     idle: { frames: 5, name: "Idle Companion 🐾", message: "Woof! Hanging out on your desktop to keep you company :)" },
     walking: { frames: 8, name: "Walking Stroll 🚶", message: "Walking across the screen for my morning greeting!" },
     food: { frames: 5, name: "Snack Time 🍖", message: "kuch khaya? Crunch crunch kibbles!" },
@@ -15,11 +14,12 @@ const SPRITE_CONFIG = {
     sleep: { frames: 5, name: "Sleep & Rest 🌙", message: "abe soja ab! Time to recharge for tomorrow." },
     rest: { frames: 5, name: "Break / Stretch 🧘", message: "Stretch your paws and take a quick break." },
     barca: { frames: 5, name: "FC Barcelona ⚽", message: "Força Barça! Match day reminders active!" },
-    f1: { frames: 5, name: "Formula 1 🏎️", message: "Lights out and away we go! Race session alert!" }
+    f1: { frames: 5, name: "Formula 1 🏎️", message: "Lights out and away we go! Race session alert!" },
+    birthday_walk: { frames: 8, name: "Birthday Celebration 🎂", message: "🎂 Celebration party mode! Fast laps and goals!" }
 };
 
 // Hero Mascot State
-let heroVariant = "birthday_walk";
+let heroVariant = "idle";
 let heroFrame = 0;
 
 // Playground Mascot State
@@ -32,11 +32,6 @@ document.addEventListener("DOMContentLoaded", () => {
     setupHeroMascot();
     setupPlayground();
     setupConfetti();
-
-    // Initial Celebration Confetti Burst
-    setTimeout(() => {
-        burstConfetti(window.innerWidth / 2, window.innerHeight / 3, 70);
-    }, 400);
 });
 
 // Setup Download Links
@@ -75,11 +70,11 @@ function setupHeroMascot() {
             
             // Random pet reaction
             const reactions = [
-                "🐾 *happy tail wags & barks* Woof! Abhishek petted me! ❤️",
-                "🎂 Happy Birthday Abhishek! Thanks for the pets! 🐶🎉",
-                "🍖 Crunch crunch! Yum, thanks Abhishek! 😋",
+                "🐾 *happy tail wags & barks* Woof! Thanks for the pets! ❤️",
+                "🍖 Crunch crunch! Yum, delicious treats! 😋",
+                "🚶 Ready to stroll across your screen!",
                 "🏎️ Vroom! Ready for the next F1 Grand Prix! 🏁",
-                "⚽ Visca el Barça! Let's get that win!"
+                "⚽ Visca el Barça! Match alerts are set!"
             ];
             const chosen = reactions[Math.floor(Math.random() * reactions.length)];
             if (bubbleMsg) {
