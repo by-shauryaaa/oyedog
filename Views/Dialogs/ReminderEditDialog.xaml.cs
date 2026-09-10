@@ -81,7 +81,8 @@ public partial class ReminderEditDialog : Window
         {
             try
             {
-                var uri = new Uri($"pack://application:,,,/Assets/Sprites/{variant.ToKey()}_0.png", UriKind.Absolute);
+                var key = variant.GetCompanionPrefix(ReminderModel.ActiveCompanion);
+                var uri = new Uri($"pack://application:,,,/Assets/Sprites/{key}_0.png", UriKind.Absolute);
                 ImgVariantPreview.Source = new BitmapImage(uri);
             }
             catch

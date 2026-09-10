@@ -81,8 +81,6 @@ public partial class MainWindow : Window
             NavigateTo(NavTarget.Matches);
         };
 
-        var (initSettings, _) = _persistence.LoadData();
-
         // Wire DisplayName changes
         _settingsTab.DisplayNameChanged += (s, newName) =>
         {
@@ -90,15 +88,14 @@ public partial class MainWindow : Window
             _homeTab.UpdateGreeting();
         };
 
-        // Wire Companion changes
-        _settingsTab.CompanionChanged += (s, newCompanion) =>
+        // Wire Active Companion changes (instant hot-reload)
+        _settingsTab.CompanionChanged += (s, newComp) =>
         {
-            LoadSidebarCompanionFrames(newCompanion);
-            _homeTab.ReloadCompanionSprites(newCompanion);
+            ReloadActiveCompanion();
         };
 
         // 3. Preload sidebar companion sprite frames
-        LoadSidebarCompanionFrames(initSettings.ActiveCompanion);
+        ReloadActiveCompanion();
 
         // 4. Setup Sidebar Timers
         _sidebarSpriteTimer = new DispatcherTimer
@@ -217,26 +214,6 @@ public partial class MainWindow : Window
         }
     }
 
-    public void LoadSidebarCompanionFrames(CompanionSpecies species)
-    {
-        string prefix = species == CompanionSpecies.Duck ? "duck_idle" : "idle";
-        for (int i = 0; i < 5; i++)
-        {
-            try
-            {
-                _sidebarDogFrames[i] = new BitmapImage(new Uri($"pack://application:,,,/Assets/Sprites/{prefix}_{i}.png", UriKind.Absolute));
-            }
-            catch
-            {
-                // Fallback
-            }
-        }
-        if (_sidebarDogFrames[0] != null)
-        {
-            SidebarDogSprite.Source = _sidebarDogFrames[0];
-        }
-    }
-
     private void BtnToggleSidebar_Click(object sender, RoutedEventArgs e)
     {
         var (settings, reminders) = _persistence.LoadData();
@@ -285,6 +262,29 @@ public partial class MainWindow : Window
     private void BtnNavTimetable_Click(object sender, RoutedEventArgs e) => NavigateTo(NavTarget.Timetable);
     private void BtnNavSettings_Click(object sender, RoutedEventArgs e) => NavigateTo(NavTarget.Settings);
     private void PnlSidebarDogWidget_MouseLeftButtonUp(object sender, System.Windows.Input.MouseButtonEventArgs e) => NavigateTo(NavTarget.Home);
+
+    public void ReloadActiveCompanion()
+    {
+        var (settings, _) = _persistence.LoadData();
+        ReminderModel.ActiveCompanion = settings.ActiveCompanion;
+        var idlePrefix = SpriteVariant.Idle.GetCompanionPrefix(settings.ActiveCompanion);
+
+        for (int i = 0; i < 5; i++)
+        {
+            try
+            {
+                _sidebarDogFrames[i] = new BitmapImage(new Uri($"pack://application:,,,/Assets/Sprites/{idlePrefix}_{i}.png", UriKind.Absolute));
+            }
+            catch { }
+        }
+
+        if (_sidebarDogFrames.Length > 0 && _sidebarDogFrames[0] != null)
+        {
+            SidebarDogSprite.Source = _sidebarDogFrames[0];
+        }
+
+        _homeTab?.ReloadCompanion();
+    }
 
     public void ApplyWindowsStartupSetting()
     {

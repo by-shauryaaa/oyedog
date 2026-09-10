@@ -88,7 +88,10 @@ public class ReminderModel : INotifyPropertyChanged
     }
 
     [JsonIgnore]
-    public string VariantPreviewPath => $"pack://application:,,,/Assets/Sprites/{Variant.ToKey()}_0.png";
+    public static CompanionSpecies ActiveCompanion { get; set; } = CompanionSpecies.Dog;
+
+    [JsonIgnore]
+    public string VariantPreviewPath => $"pack://application:,,,/Assets/Sprites/{Variant.GetCompanionPrefix(ActiveCompanion)}_0.png";
 
     public event PropertyChangedEventHandler? PropertyChanged;
 

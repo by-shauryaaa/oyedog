@@ -15,18 +15,20 @@
   - 🌙 **Night**: Twinkling star sparkles and glowing fireflies floating in gentle sine waves.
 - **De-Boxed Floating Greeting**: Dynamic time-aware greetings floating directly over the scenery with crisp pixel drop shadow contrast.
 
-### 🐕 & 🦆 Swappable Companions: Dogu & Ducky
-- **Choose Your Pet**: Switch seamlessly between **Dogu (Loyal Puppy)** and **Ducky (Iconic Rubber Duck)** anytime in Settings.
-- **Native 256×256 High-Fidelity Sprites**: Ducky is rendered with smooth curves, glossy rubber specular sheens, and vibrant yellow/orange hues.
-- **Full Matching Sprite Variants**: Both pets feature matching 5-frame and 8-frame animations across the entire app:
-  - `idle`: Gentle breathing, tail wag / bob, cute blinking.
-  - `walking`: Dogu strides across the lawn; Ducky waddles side-to-side on orange paddle feet.
-  - `water` & `food`: Crunching treats vs pecking seeds beside a water bowl.
-  - `sleep`: Curved shut eyes with floating animated `Z z Z`.
-  - `rest`: Playful stretches and wing flaps.
-  - `barca` & `f1`: Blaugrana team colors and racing gear.
-  - `birthday_walk`: Bilateral stroll wearing a festive party hat surrounded by floating confetti.
-- **Global Presence**: The active companion updates instantly everywhere — sidebar habitat, interactive Home walk-in, reminder popups, and morning screen strolls.
+### 🐕 & 🦆 Swappable Companions: Dogu & Rubber Duck
+- **Choose Your Pet**: Switch seamlessly between **Dogu (Loyal Puppy)** and **Rubber Duck (Iconic Yellow Duck)** in Settings.
+- **Pixel-Perfect Reference Art**: Rendered in pure pixel art with canary yellow body (`#FCD800`), warm amber underside shading (`#F48B28`), dark chocolate outline (`#3D1E2C`), and vibrant beak.
+- **9 Matching Sprite Variants**:
+  - `idle`: Sitting comfortably, slow breathing bob, eye blink, and tail feather wiggle.
+  - `walking`: Floats smoothly across screen on animated water with gentle sine-wave bobbing and ripples (not walking on legs!).
+  - `water`: Soapy bath with bubbles floating up and water splashing everywhere.
+  - `food`: Dips beak down into a bowl of seeds/crumbs.
+  - `sleep`: Tucks beak into wing fold with closed eyes and rising blue `Zzz`.
+  - `rest`: Puffs chest and flaps wings outward wide in a big playful stretch.
+  - `barca`: Wears the Blaugrana scarf with a classic soccer ball beside it.
+  - `f1`: Wears a red aerodynamic racing helmet with a checkered flag waving on the side.
+  - `birthday_walk`: Water float with party cone hat and festive falling confetti.
+- **Instant Hot-Reloading**: Changing your companion in Settings immediately updates the sidebar habitat, Home stage, habit popups, and desktop strolls without restarting.
 
 ### 🐕 Walk-to-Center Companion Entrance & Contextual Actions
 - **Dynamic Entrance**: Visiting Home triggers Dogu to walk across the lawn from left to center using an 8-frame walk cycle.

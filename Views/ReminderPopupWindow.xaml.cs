@@ -21,7 +21,7 @@ public partial class ReminderPopupWindow : Window
     public event EventHandler? OkiiClicked;
     public event EventHandler? AutoDismissed;
 
-    public ReminderPopupWindow(string title, string message, SpriteVariant variant, PopupPosition position, CompanionSpecies species = CompanionSpecies.Dog)
+    public ReminderPopupWindow(string title, string message, SpriteVariant variant, PopupPosition position, CompanionSpecies companion = CompanionSpecies.Dog)
     {
         InitializeComponent();
 
@@ -31,10 +31,9 @@ public partial class ReminderPopupWindow : Window
         TxtTitle.Text = title.ToUpperInvariant();
         TxtMessage.Text = message;
 
-        // Preload the 5 animation frames for the variant
-        var key = variant.ToKey(species);
-        string fallbackKey = species == CompanionSpecies.Duck ? "duck_idle" : "idle";
-
+        // Preload the 5 animation frames for the variant based on active companion
+        var key = variant.GetCompanionPrefix(companion);
+        var fallbackKey = (companion == CompanionSpecies.Duck) ? "duck_idle" : "idle";
         for (int i = 0; i < 5; i++)
         {
             try

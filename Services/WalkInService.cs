@@ -34,7 +34,7 @@ public class WalkInService
                 }
 
                 var (settings, _) = _persistence.LoadData();
-                _activeWalkInWindow = new WalkInGreetingWindow(settings.ActiveCompanion);
+                _activeWalkInWindow = new WalkInGreetingWindow(settings.ActiveCompanion, settings.DisplayName);
                 _activeWalkInWindow.Show();
             }
             catch (Exception ex)

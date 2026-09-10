@@ -1,7 +1,5 @@
 using System;
 using System.Windows;
-using System.Windows.Input;
-using System.Windows.Media;
 using System.Windows.Threading;
 using PixelDogReminders.Models;
 using PixelDogReminders.Services;
@@ -18,7 +16,6 @@ public partial class SettingsTab : WpfControl
     private readonly PopupService _popupService;
     private readonly FlagReminderService? _flagService;
     private bool _isInitializing = true;
-
     public event EventHandler<CompanionSpecies>? CompanionChanged;
 
     public SettingsTab(PersistenceService persistence, PopupService popupService, FlagReminderService? flagService = null)
@@ -39,8 +36,8 @@ public partial class SettingsTab : WpfControl
         _isInitializing = true;
         var (settings, _) = _persistence.LoadData();
 
-        // 0. Companion
-        UpdateCompanionCardUI(settings.ActiveCompanion);
+        // 0. Active Companion
+        UpdateCompanionUI(settings.ActiveCompanion);
 
         // 1. Position
         switch (settings.Position)
@@ -366,70 +363,40 @@ public partial class SettingsTab : WpfControl
         }
     }
 
-    private void UpdateCompanionCardUI(CompanionSpecies species)
+    private void UpdateCompanionUI(CompanionSpecies companion)
     {
-        var brushActiveBorder = (SolidColorBrush)new BrushConverter().ConvertFromString("#8D6E57")!;
-        var brushInactiveBorder = (SolidColorBrush)new BrushConverter().ConvertFromString("#E0D6CC")!;
-        var brushActiveBg = (SolidColorBrush)new BrushConverter().ConvertFromString("#FFFBF0")!;
-        var brushInactiveBg = (SolidColorBrush)new BrushConverter().ConvertFromString("#FFFFFF")!;
-        var brushActiveBadge = (SolidColorBrush)new BrushConverter().ConvertFromString("#2D1E14")!;
-        var brushInactiveBadge = (SolidColorBrush)new BrushConverter().ConvertFromString("#E0D6CC")!;
-        var brushGold = (SolidColorBrush)new BrushConverter().ConvertFromString("#FFD700")!;
-        var brushMuted = (SolidColorBrush)new BrushConverter().ConvertFromString("#555555")!;
+        bool isDuck = companion == CompanionSpecies.Duck;
+        var darkBrush = (System.Windows.Media.SolidColorBrush)new System.Windows.Media.BrushConverter().ConvertFromString("#2D1E14")!;
+        var mutedBrush = (System.Windows.Media.SolidColorBrush)new System.Windows.Media.BrushConverter().ConvertFromString("#E0D6CC")!;
 
-        if (species == CompanionSpecies.Duck)
-        {
-            CardDog.BorderBrush = brushInactiveBorder;
-            CardDog.Background = brushInactiveBg;
-            BadgeDog.Background = brushInactiveBadge;
-            TxtBadgeDog.Text = "SELECT";
-            TxtBadgeDog.Foreground = brushMuted;
+        TileCompanionDog.BorderBrush = isDuck ? mutedBrush : darkBrush;
+        TileCompanionDog.BorderThickness = new Thickness(isDuck ? 2 : 3);
+        TxtDogSelectedBadge.Visibility = isDuck ? Visibility.Collapsed : Visibility.Visible;
 
-            CardDuck.BorderBrush = brushActiveBorder;
-            CardDuck.Background = brushActiveBg;
-            BadgeDuck.Background = brushActiveBadge;
-            TxtBadgeDuck.Text = "ACTIVE";
-            TxtBadgeDuck.Foreground = brushGold;
-        }
-        else
-        {
-            CardDog.BorderBrush = brushActiveBorder;
-            CardDog.Background = brushActiveBg;
-            BadgeDog.Background = brushActiveBadge;
-            TxtBadgeDog.Text = "ACTIVE";
-            TxtBadgeDog.Foreground = brushGold;
-
-            CardDuck.BorderBrush = brushInactiveBorder;
-            CardDuck.Background = brushInactiveBg;
-            BadgeDuck.Background = brushInactiveBadge;
-            TxtBadgeDuck.Text = "SELECT";
-            TxtBadgeDuck.Foreground = brushMuted;
-        }
+        TileCompanionDuck.BorderBrush = isDuck ? darkBrush : mutedBrush;
+        TileCompanionDuck.BorderThickness = new Thickness(isDuck ? 3 : 2);
+        TxtDuckSelectedBadge.Visibility = isDuck ? Visibility.Visible : Visibility.Collapsed;
     }
 
-    private void CardDog_Click(object sender, MouseButtonEventArgs e)
+    private void TileCompanionDog_Click(object sender, System.Windows.Input.MouseButtonEventArgs e)
     {
         SetCompanion(CompanionSpecies.Dog);
     }
 
-    private void CardDuck_Click(object sender, MouseButtonEventArgs e)
+    private void TileCompanionDuck_Click(object sender, System.Windows.Input.MouseButtonEventArgs e)
     {
         SetCompanion(CompanionSpecies.Duck);
     }
 
-    private void SetCompanion(CompanionSpecies species)
+    private void SetCompanion(CompanionSpecies companion)
     {
         var (settings, reminders) = _persistence.LoadData();
-        if (settings.ActiveCompanion == species) return;
+        if (settings.ActiveCompanion == companion) return;
 
-        settings.ActiveCompanion = species;
+        settings.ActiveCompanion = companion;
         _persistence.SaveData(settings, reminders);
 
-        UpdateCompanionCardUI(species);
-        TxtCompanionStatus.Text = species == CompanionSpecies.Duck
-            ? "✨ Active companion set to Ducky! 🦆"
-            : "✨ Active companion set to Dogu! 🐶";
-
-        CompanionChanged?.Invoke(this, species);
+        UpdateCompanionUI(companion);
+        CompanionChanged?.Invoke(this, companion);
     }
 }

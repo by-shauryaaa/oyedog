@@ -46,31 +46,11 @@ public static class SpriteVariantExtensions
         _ => "Idle"
     };
 
-    public static string ToKey(this SpriteVariant variant, CompanionSpecies species)
-    {
-        string baseKey = variant.ToKey();
-        return species == CompanionSpecies.Duck ? $"duck_{baseKey}" : baseKey;
-    }
+    public static string GetCompanionPrefix(this SpriteVariant variant, CompanionSpecies species) =>
+        species == CompanionSpecies.Duck ? $"duck_{variant.ToKey()}" : variant.ToKey();
 
-    public static string GetSpritePath(this SpriteVariant variant, CompanionSpecies species, int frame)
-    {
-        string key = variant.ToKey(species);
-        return $"pack://application:,,,/Assets/Sprites/{key}_{frame}.png";
-    }
-}
-
-public static class CompanionSpeciesExtensions
-{
-    public static string ToDisplayName(this CompanionSpecies species) => species switch
-    {
-        CompanionSpecies.Dog => "Dogu (Dog)",
-        CompanionSpecies.Duck => "Ducky (Rubber Duck)",
-        _ => "Dogu (Dog)"
-    };
-
-    public static string GetPrefix(this CompanionSpecies species) => species switch
-    {
-        CompanionSpecies.Duck => "duck_",
-        _ => ""
-    };
+    public static string GetWalkPrefix(CompanionSpecies species, bool isBirthday) =>
+        species == CompanionSpecies.Duck
+            ? (isBirthday ? "duck_birthday_walk" : "duck_walking")
+            : (isBirthday ? "birthday_walk" : "walking");
 }

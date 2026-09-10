@@ -350,27 +350,44 @@ public class AppTests
     }
 
     [Fact]
-    public void AppSettings_DefaultCompanion_ShouldBeDog()
+    public void AppSettings_ActiveCompanion_DefaultsToDog()
     {
         var settings = new AppSettings();
         Assert.Equal(CompanionSpecies.Dog, settings.ActiveCompanion);
     }
 
     [Fact]
-    public void SpriteVariant_ToKey_WithDuckSpecies_ShouldHaveDuckPrefix()
+    public void CompanionSpecies_PrefixExtensions_WorkCorrectly()
     {
-        Assert.Equal("idle", SpriteVariant.Idle.ToKey(CompanionSpecies.Dog));
-        Assert.Equal("duck_idle", SpriteVariant.Idle.ToKey(CompanionSpecies.Duck));
-        Assert.Equal("duck_walking", SpriteVariant.Walking.ToKey(CompanionSpecies.Duck));
-        Assert.Equal("duck_birthday_walk", SpriteVariant.BirthdayWalk.ToKey(CompanionSpecies.Duck));
-        Assert.Equal("duck_water", SpriteVariant.Water.ToKey(CompanionSpecies.Duck));
-        Assert.Equal("duck_food", SpriteVariant.Food.ToKey(CompanionSpecies.Duck));
+        // Dog prefixes
+        Assert.Equal("idle", SpriteVariant.Idle.GetCompanionPrefix(CompanionSpecies.Dog));
+        Assert.Equal("walking", SpriteVariantExtensions.GetWalkPrefix(CompanionSpecies.Dog, isBirthday: false));
+        Assert.Equal("birthday_walk", SpriteVariantExtensions.GetWalkPrefix(CompanionSpecies.Dog, isBirthday: true));
+
+        // Duck prefixes
+        Assert.Equal("duck_idle", SpriteVariant.Idle.GetCompanionPrefix(CompanionSpecies.Duck));
+        Assert.Equal("duck_water", SpriteVariant.Water.GetCompanionPrefix(CompanionSpecies.Duck));
+        Assert.Equal("duck_walking", SpriteVariantExtensions.GetWalkPrefix(CompanionSpecies.Duck, isBirthday: false));
+        Assert.Equal("duck_birthday_walk", SpriteVariantExtensions.GetWalkPrefix(CompanionSpecies.Duck, isBirthday: true));
     }
 
     [Fact]
-    public void CompanionSpecies_ToDisplayName_ShouldReturnExpectedNames()
+    public void PersistenceService_SavesAndLoadsActiveCompanion()
     {
-        Assert.Contains("Dog", CompanionSpecies.Dog.ToDisplayName());
-        Assert.Contains("Duck", CompanionSpecies.Duck.ToDisplayName());
+        var tempFile = Path.Combine(Path.GetTempPath(), $"test_config_{Guid.NewGuid()}.json");
+        try
+        {
+            var service = new PersistenceService(tempFile);
+            var (settings, reminders) = service.LoadData();
+            settings.ActiveCompanion = CompanionSpecies.Duck;
+            service.SaveData(settings, reminders);
+
+            var (loadedSettings, _) = service.LoadData();
+            Assert.Equal(CompanionSpecies.Duck, loadedSettings.ActiveCompanion);
+        }
+        finally
+        {
+            if (File.Exists(tempFile)) File.Delete(tempFile);
+        }
     }
 }

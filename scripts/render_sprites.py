@@ -54,6 +54,48 @@ CONFETTI_COLORS = [
     (210, 90, 255, 255)
 ]
 
+# Duck palette (from reference pixel art)
+DUCK_OUTLINE = (61, 30, 44, 255)          # #3D1E2C dark chocolate outline
+DUCK_YELLOW = (252, 216, 0, 255)          # #FCD800 bright canary yellow
+DUCK_YELLOW_BRIGHT = (255, 250, 138, 255) # #FFFA8A light yellow highlight
+DUCK_ORANGE = (244, 139, 40, 255)         # #F48B28 warm amber/orange belly shading
+DUCK_BEAK_ORANGE = (255, 105, 50, 255)    # #FF6932 vibrant beak orange
+DUCK_BEAK_RED = (185, 0, 70, 255)         # #B90046 magenta/red beak mouth
+DUCK_EYE = (45, 25, 30, 255)              # #2D191E eye pupil
+DUCK_EYE_SHINE = (255, 255, 255, 255)     # Eye sparkle
+WATER_FOAM = (230, 245, 255, 255)         # Soap foam / bubbles
+SEED_COLOR = (180, 130, 60, 255)          # Duck seed crumbs
+F1_VISOR = (30, 30, 35, 255)              # Helmet dark visor
+
+# Base 25x25 duck matrix directly from reference image
+DUCK_MAP = [
+    "...........#######.......", # 0
+    "........###YYLLLL#.......", # 1
+    ".......#YYYYLLLLLY#......", # 2
+    ".......#YYYYLLLLLY#......", # 3
+    ".......#YYYYYLLLLY#......", # 4
+    "......#OYYYYYYYYYY#......", # 5
+    "......#OYY##YYYYYY#......", # 6 (eye at 10,11)
+    "......#OYY##YYYY######...", # 7 (eye at 10,11, beak top)
+    "......#OYYYYYYY#BBBBBBR#.", # 8 (beak)
+    "......#OYYYYYYY#RRRRRRR#.", # 9 (mouth)
+    "......#OYYYYYYY#RRRRRRR#.", # 10 (mouth)
+    "...###.#OYYYYYYY#RR####..", # 11 (tail tip at left)
+    "..#YYYO#####OOOOOOOOO#...", # 12 (tail + neck line)
+    ".#YYYYYYYYYYYYYYYYYYY##..", # 13
+    ".#YYYY#######YYYYYLLLYY#.", # 14 (wing top)
+    ".#YYYY#LLLLL#YYYYYLLLYY#.", # 15 (wing highlight)
+    ".#YYOY#YYLLL#YYYYLYLYYY#.", # 16
+    ".#YYY#YYYYLY#YYYYYYYYYY#.", # 17
+    ".#OYY#OYYYYY#YYYYYYYYYY#.", # 18
+    "..#OO#OOOYYO#YYYYYYYYYY#.", # 19
+    "..#OOOO#######YYYYYYYYY#.", # 20 (wing bottom)
+    "...##OOOOOOOOOYYYYYYYYO#.", # 21
+    "...##OOOOOOOOOYYYYYYYYO#.", # 22
+    "....#OOOOOOOOOOOOOOOO###.", # 23
+    ".....###############.....", # 24
+]
+
 class PixelCanvas:
     def __init__(self, width=GRID_SIZE, height=GRID_SIZE):
         self.width = width
@@ -503,11 +545,383 @@ def draw_dog_walking(grid, frame=0, birthday=False):
 
     return grid
 
+def draw_duck(grid, variant="idle", frame=0):
+    ox = 3
+    oy = 4
+
+    # 1. IDLE
+    if variant == "idle":
+        breath = 1 if frame in (1, 2) else 0
+        blink = (frame == 3)
+        tail_wiggle = (frame == 4)
+        
+        dy = -breath
+        for r in range(25):
+            for c in range(25):
+                ch = DUCK_MAP[r][c]
+                if ch == '.': continue
+                
+                px = ox + c
+                py = oy + r + dy
+                if tail_wiggle and c < 5 and r in (11, 12, 13):
+                    py -= 1
+
+                if blink and r in (6, 7) and c in (10, 11):
+                    if r == 7:
+                        grid.putpixel((px, py), DUCK_OUTLINE)
+                    else:
+                        grid.putpixel((px, py), DUCK_YELLOW)
+                    continue
+
+                if ch == '#': col = DUCK_OUTLINE
+                elif ch == 'Y': col = DUCK_YELLOW
+                elif ch == 'L': col = DUCK_YELLOW_BRIGHT
+                elif ch == 'O': col = DUCK_ORANGE
+                elif ch == 'B': col = DUCK_BEAK_ORANGE
+                elif ch == 'R': col = DUCK_BEAK_RED
+                else: col = TRANSPARENT
+
+                if not blink and r == 6 and c == 10:
+                    col = DUCK_EYE_SHINE
+                elif not blink and r in (6, 7) and c in (10, 11):
+                    col = DUCK_EYE
+
+                grid.putpixel((px, py), col)
+
+    # 2. WATER (Soap bath, bubbles and water splashing everywhere)
+    elif variant == "water":
+        for r in range(25):
+            for c in range(25):
+                ch = DUCK_MAP[r][c]
+                if ch == '.': continue
+                px = ox + c
+                py = oy + r
+                if ch == '#': col = DUCK_OUTLINE
+                elif ch == 'Y': col = DUCK_YELLOW
+                elif ch == 'L': col = DUCK_YELLOW_BRIGHT
+                elif ch == 'O': col = DUCK_ORANGE
+                elif ch == 'B': col = DUCK_BEAK_ORANGE
+                elif ch == 'R': col = DUCK_BEAK_RED
+                else: col = TRANSPARENT
+                if r == 6 and c == 10: col = DUCK_EYE_SHINE
+                elif r in (6, 7) and c in (10, 11): col = DUCK_EYE
+                grid.putpixel((px, py), col)
+
+        # Soapy water tub/puddle at base
+        for x in range(3, 29):
+            grid.putpixel((x, 28), WATER_DARK)
+            grid.putpixel((x, 27), WATER_COLOR)
+        foam_pos = [(6, 26), (7, 26), (8, 25), (15, 26), (16, 26), (23, 26), (24, 26), (25, 25)]
+        for fx, fy in foam_pos:
+            grid.putpixel((fx, fy), WATER_FOAM)
+
+        # Bubbles floating up
+        bubble_data = [
+            [(5, 22), (26, 21), (28, 15)],
+            [(4, 18), (25, 17), (27, 10)],
+            [(5, 14), (26, 12), (29, 7)],
+            [(6, 10), (27, 8), (28, 4)],
+            [(5, 6), (26, 4), (27, 18)]
+        ]
+        for bx, by in bubble_data[frame % 5]:
+            grid.putpixel((bx, by), WATER_COLOR)
+            grid.putpixel((bx+1, by), WATER_FOAM)
+            grid.putpixel((bx, by+1), WATER_FOAM)
+            grid.putpixel((bx+1, by+1), WATER_COLOR)
+
+        # Water splash droplets
+        splash_data = [
+            [(2, 24), (30, 24)],
+            [(1, 22), (31, 23)],
+            [(2, 20), (30, 21)],
+            [(3, 22), (29, 23)],
+            [(2, 25), (30, 25)]
+        ]
+        for sx, sy in splash_data[frame % 5]:
+            grid.putpixel((sx, sy), WATER_COLOR)
+
+    # 3. FOOD (Beak dipping into bowl)
+    elif variant == "food":
+        dip = [0, 1, 2, 1, 0][frame % 5]
+        for r in range(25):
+            for c in range(25):
+                ch = DUCK_MAP[r][c]
+                if ch == '.': continue
+                px = ox + c
+                py = oy + r
+                if r <= 11:
+                    py += dip
+                    px += (1 if dip > 0 else 0)
+
+                if ch == '#': col = DUCK_OUTLINE
+                elif ch == 'Y': col = DUCK_YELLOW
+                elif ch == 'L': col = DUCK_YELLOW_BRIGHT
+                elif ch == 'O': col = DUCK_ORANGE
+                elif ch == 'B': col = DUCK_BEAK_ORANGE
+                elif ch == 'R': col = DUCK_BEAK_RED
+                else: col = TRANSPARENT
+                if r == 6 and c == 10: col = DUCK_EYE_SHINE
+                elif r in (6, 7) and c in (10, 11): col = DUCK_EYE
+                grid.putpixel((px, py), col)
+
+        # Seed bowl on right
+        for bx in range(22, 29):
+            grid.putpixel((bx, 28), DUCK_OUTLINE)
+            grid.putpixel((bx, 27), BOWL_COLOR)
+            grid.putpixel((bx, 26), BOWL_COLOR)
+        grid.putpixel((21, 26), DUCK_OUTLINE)
+        grid.putpixel((29, 26), DUCK_OUTLINE)
+        for sx in range(23, 28):
+            grid.putpixel((sx, 25), SEED_COLOR)
+            grid.putpixel((sx, 26), SEED_COLOR)
+
+        if frame in (2, 3):
+            grid.putpixel((22, 23), SEED_COLOR)
+            grid.putpixel((28, 22), SEED_COLOR)
+            grid.putpixel((25, 20), SEED_COLOR)
+
+    # 4. SLEEP (Tucked wings and zzzzz)
+    elif variant == "sleep":
+        breath = 1 if frame in (1, 2) else 0
+        dy = breath
+        for r in range(25):
+            for c in range(25):
+                ch = DUCK_MAP[r][c]
+                if ch == '.': continue
+                px = ox + c
+                py = oy + r + dy
+                
+                if r in (6, 7) and c in (10, 11):
+                    col = DUCK_OUTLINE if r == 7 else DUCK_YELLOW
+                    grid.putpixel((px, py), col)
+                    continue
+
+                if ch == '#': col = DUCK_OUTLINE
+                elif ch == 'Y': col = DUCK_YELLOW
+                elif ch == 'L': col = DUCK_YELLOW_BRIGHT
+                elif ch == 'O': col = DUCK_ORANGE
+                elif ch == 'B': col = DUCK_BEAK_ORANGE
+                elif ch == 'R': col = DUCK_BEAK_RED
+                else: col = TRANSPARENT
+                grid.putpixel((px, py), col)
+
+        # Floating Zzz
+        z_offset = frame * 2
+        for zx, zy in [(22, 10 - z_offset), (26, 6 - z_offset)]:
+            if 0 <= zy < 30:
+                grid.putpixel((zx, zy), SLEEP_Z)
+                grid.putpixel((zx+1, zy), SLEEP_Z)
+                grid.putpixel((zx+2, zy), SLEEP_Z)
+                grid.putpixel((zx+1, zy+1), SLEEP_Z)
+                grid.putpixel((zx, zy+2), SLEEP_Z)
+                grid.putpixel((zx+1, zy+2), SLEEP_Z)
+                grid.putpixel((zx+2, zy+2), SLEEP_Z)
+
+    # 5. REST (Wing flap stretch)
+    elif variant == "rest":
+        flap = [0, 1, 2, 1, 0][frame % 5]
+        for r in range(25):
+            for c in range(25):
+                ch = DUCK_MAP[r][c]
+                if ch == '.': continue
+                px = ox + c
+                py = oy + r - (1 if flap > 0 else 0)
+
+                if ch == '#': col = DUCK_OUTLINE
+                elif ch == 'Y': col = DUCK_YELLOW
+                elif ch == 'L': col = DUCK_YELLOW_BRIGHT
+                elif ch == 'O': col = DUCK_ORANGE
+                elif ch == 'B': col = DUCK_BEAK_ORANGE
+                elif ch == 'R': col = DUCK_BEAK_RED
+                else: col = TRANSPARENT
+                if r == 6 and c == 10: col = DUCK_EYE_SHINE
+                elif r in (6, 7) and c in (10, 11): col = DUCK_EYE
+                grid.putpixel((px, py), col)
+
+        if flap >= 1:
+            wing_ext = 2 if flap == 2 else 1
+            for wy in range(16, 21):
+                for wx in range(max(0, ox - wing_ext), ox + 2):
+                    grid.putpixel((wx, wy - flap), DUCK_YELLOW_BRIGHT)
+                    if wx == ox - wing_ext or wy == 16:
+                        grid.putpixel((wx, wy - flap), DUCK_OUTLINE)
+            for wy in range(16, 21):
+                for wx in range(ox + 23, min(31, ox + 24 + wing_ext)):
+                    grid.putpixel((wx, wy - flap), DUCK_YELLOW_BRIGHT)
+                    if wx == ox + 23 + wing_ext - 1 or wy == 16:
+                        grid.putpixel((wx, wy - flap), DUCK_OUTLINE)
+
+    # 6. BARCA (Blaugrana scarf with football sitting near it)
+    elif variant == "barca":
+        for r in range(25):
+            for c in range(25):
+                ch = DUCK_MAP[r][c]
+                if ch == '.': continue
+                px = ox + c
+                py = oy + r
+                if ch == '#': col = DUCK_OUTLINE
+                elif ch == 'Y': col = DUCK_YELLOW
+                elif ch == 'L': col = DUCK_YELLOW_BRIGHT
+                elif ch == 'O': col = DUCK_ORANGE
+                elif ch == 'B': col = DUCK_BEAK_ORANGE
+                elif ch == 'R': col = DUCK_BEAK_RED
+                else: col = TRANSPARENT
+                if r == 6 and c == 10: col = DUCK_EYE_SHINE
+                elif r in (6, 7) and c in (10, 11): col = DUCK_EYE
+                grid.putpixel((px, py), col)
+
+        # Scarf wrapped around neck
+        for sx in range(ox + 7, ox + 18):
+            stripe_col = BARCA_BLUE if (sx % 3 in (0, 1)) else BARCA_RED
+            grid.putpixel((sx, oy + 12), stripe_col)
+            grid.putpixel((sx, oy + 13), stripe_col)
+        for sy in range(oy + 14, oy + 18):
+            tail_col = BARCA_BLUE if (sy % 2 == 0) else BARCA_RED
+            grid.putpixel((ox + 8, sy), tail_col)
+            grid.putpixel((ox + 9, sy), tail_col)
+            grid.putpixel((ox + 7, sy), DUCK_OUTLINE)
+            grid.putpixel((ox + 10, sy), DUCK_OUTLINE)
+        grid.putpixel((ox + 8, oy + 18), BARCA_GOLD)
+        grid.putpixel((ox + 9, oy + 18), BARCA_GOLD)
+
+        # Football sitting near duck with gentle tap
+        ball_x = 24 + (1 if frame in (2, 3) else 0)
+        ball_y = 23
+        for by in range(ball_y, ball_y + 5):
+            for bx in range(ball_x, ball_x + 5):
+                dx = bx - (ball_x + 2)
+                dy = by - (ball_y + 2)
+                if dx*dx + dy*dy <= 5:
+                    is_black = (dx == 0 and dy == 0) or (abs(dx) == 2 and abs(dy) == 1) or (abs(dx) == 1 and abs(dy) == 2)
+                    grid.putpixel((bx, by), DUCK_OUTLINE if is_black else (250, 250, 250, 255))
+        grid.putpixel((ball_x + 2, ball_y - 1), DUCK_OUTLINE)
+        grid.putpixel((ball_x + 2, ball_y + 5), DUCK_OUTLINE)
+
+    # 7. F1 (Red helmet and checkered flag on the side)
+    elif variant == "f1":
+        for r in range(25):
+            for c in range(25):
+                ch = DUCK_MAP[r][c]
+                if ch == '.': continue
+                px = ox + c
+                py = oy + r
+
+                # Red helmet on head
+                if r <= 7 and c in range(7, 19):
+                    if r in (5, 6) and c in (14, 15, 16, 17):
+                        grid.putpixel((px, py), F1_VISOR)
+                    elif r == 0:
+                        grid.putpixel((px, py), BARCA_GOLD)
+                    else:
+                        grid.putpixel((px, py), F1_RED)
+                    continue
+
+                if ch == '#': col = DUCK_OUTLINE
+                elif ch == 'Y': col = DUCK_YELLOW
+                elif ch == 'L': col = DUCK_YELLOW_BRIGHT
+                elif ch == 'O': col = DUCK_ORANGE
+                elif ch == 'B': col = DUCK_BEAK_ORANGE
+                elif ch == 'R': col = DUCK_BEAK_RED
+                else: col = TRANSPARENT
+                if r == 6 and c == 10: col = DUCK_EYE_SHINE
+                elif r in (6, 7) and c in (10, 11): col = DUCK_EYE
+                grid.putpixel((px, py), col)
+
+        # Checkered flag on right
+        pole_x = 28
+        wave = 1 if frame in (2, 3) else 0
+        for py in range(6, 29):
+            grid.putpixel((pole_x, py), DUCK_OUTLINE)
+        for fy in range(7, 13):
+            for fx in range(pole_x - 6 - wave, pole_x):
+                is_black = ((fx + fy) % 2 == 0)
+                grid.putpixel((fx, fy), DUCK_OUTLINE if is_black else (255, 255, 255, 255))
+
+    return grid
+
+def draw_duck_floating(grid, frame=0, birthday=False):
+    # 8-frame smooth water float across screen
+    ox = 3
+    bob = [0, -1, -1, 0, 1, 1, 0, -1][frame % 8]
+    oy = 3 + bob
+
+    # 1. Duck body floating on water
+    for r in range(25):
+        for c in range(25):
+            ch = DUCK_MAP[r][c]
+            if ch == '.': continue
+            px = ox + c
+            py = oy + r
+            if py >= 28: continue # submerged in water waterline
+
+            if ch == '#': col = DUCK_OUTLINE
+            elif ch == 'Y': col = DUCK_YELLOW
+            elif ch == 'L': col = DUCK_YELLOW_BRIGHT
+            elif ch == 'O': col = DUCK_ORANGE
+            elif ch == 'B': col = DUCK_BEAK_ORANGE
+            elif ch == 'R': col = DUCK_BEAK_RED
+            else: col = TRANSPARENT
+            if r == 6 and c == 10: col = DUCK_EYE_SHINE
+            elif r in (6, 7) and c in (10, 11): col = DUCK_EYE
+            grid.putpixel((px, py), col)
+
+    # 2. Water ripples & surface
+    water_y = 27
+    for wx in range(1, 31):
+        grid.putpixel((wx, water_y), WATER_COLOR)
+        grid.putpixel((wx, water_y + 1), WATER_DARK)
+
+    ripple_phase = frame % 4
+    ripple_x1 = 2 + ripple_phase * 2
+    ripple_x2 = 26 - ripple_phase * 2
+    for rx in (ripple_x1, ripple_x1 + 1, ripple_x2, ripple_x2 + 1):
+        if 0 <= rx < 32:
+            grid.putpixel((rx, water_y - 1), WATER_FOAM)
+
+    for fx in range(ox + 4, ox + 22, 3):
+        grid.putpixel((fx, water_y), WATER_FOAM)
+
+    # 3. Birthday party hat and confetti overlay
+    if birthday:
+        head_cx = ox + 14
+        head_top_y = oy + 1
+        hat_tip_x = head_cx
+        hat_tip_y = head_top_y - 7
+
+        if 0 <= hat_tip_y < 32:
+            grid.putpixel((hat_tip_x, hat_tip_y), HAT_POMPOM)
+            grid.putpixel((hat_tip_x + 1, hat_tip_y), HAT_POMPOM)
+
+        for hy in range(hat_tip_y + 1, head_top_y):
+            if 0 <= hy < 32:
+                row_w = (hy - hat_tip_y) // 2 + 1
+                for hx in range(hat_tip_x - row_w, hat_tip_x + row_w + 1):
+                    if 0 <= hx < 32:
+                        col = HAT_BASE if (hy % 2 == 0) else HAT_STRIPE
+                        grid.putpixel((hx, hy), col)
+
+        confetti_positions = [
+            (3, 4 + ((frame * 3) % 15), CONFETTI_COLORS[frame % 5]),
+            (9, 2 + ((frame * 2) % 12), CONFETTI_COLORS[(frame + 1) % 5]),
+            (16, 1 + ((frame * 4) % 10), CONFETTI_COLORS[(frame + 2) % 5]),
+            (26, 3 + ((frame * 2) % 14), CONFETTI_COLORS[(frame + 3) % 5]),
+            (29, 8 + ((frame * 3) % 12), CONFETTI_COLORS[(frame + 4) % 5]),
+            (2, 13 + ((frame * 2) % 10), CONFETTI_COLORS[(frame + 1) % 5]),
+            (28, 17 + ((frame * 3) % 8), CONFETTI_COLORS[(frame + 3) % 5])
+        ]
+        for cx, cy, ccol in confetti_positions:
+            if 0 <= cx < 32 and 0 <= cy < 32:
+                grid.putpixel((cx, cy), ccol)
+                grid.putpixel((cx + 1, cy), ccol)
+
+    return grid
+
 def generate_all_sprites():
     variants = ["idle", "water", "food", "sleep", "rest", "barca", "f1"]
-    total = 0
+    total_dog = 0
+    total_duck = 0
     
-    # 1. 5-frame standard variants
+    # 1. Dog: 5-frame standard variants
     for v in variants:
         for f in range(5):
             canvas = PixelCanvas()
@@ -515,33 +929,55 @@ def generate_all_sprites():
             filename = f"{v}_{f}.png"
             path = os.path.join(OUTPUT_DIR, filename)
             canvas.save_png(path, scale=SCALE)
-            total += 1
+            total_dog += 1
 
-    # 2. 8-frame walking variant
+    # 2. Dog: 8-frame walking variant
     for f in range(8):
         canvas = PixelCanvas()
         draw_dog_walking(canvas, frame=f, birthday=False)
         filename = f"walking_{f}.png"
         path = os.path.join(OUTPUT_DIR, filename)
         canvas.save_png(path, scale=SCALE)
-        total += 1
+        total_dog += 1
 
-    # 3. 8-frame birthday walk variant (with party hat & confetti)
+    # 3. Dog: 8-frame birthday walk variant
     for f in range(8):
         canvas = PixelCanvas()
         draw_dog_walking(canvas, frame=f, birthday=True)
         filename = f"birthday_walk_{f}.png"
         path = os.path.join(OUTPUT_DIR, filename)
         canvas.save_png(path, scale=SCALE)
-        total += 1
+        total_dog += 1
 
-    print(f"Successfully generated {total} dog sprite frames in {OUTPUT_DIR}")
-    
-    try:
-        from render_duck import generate_all_duck_sprites
-        generate_all_duck_sprites()
-    except Exception as e:
-        print(f"Note: Could not generate duck sprites: {e}")
+    # 4. Duck: 5-frame standard variants
+    for v in variants:
+        for f in range(5):
+            canvas = PixelCanvas()
+            draw_duck(canvas, variant=v, frame=f)
+            filename = f"duck_{v}_{f}.png"
+            path = os.path.join(OUTPUT_DIR, filename)
+            canvas.save_png(path, scale=SCALE)
+            total_duck += 1
+
+    # 5. Duck: 8-frame floating water walk
+    for f in range(8):
+        canvas = PixelCanvas()
+        draw_duck_floating(canvas, frame=f, birthday=False)
+        filename = f"duck_walking_{f}.png"
+        path = os.path.join(OUTPUT_DIR, filename)
+        canvas.save_png(path, scale=SCALE)
+        total_duck += 1
+
+    # 6. Duck: 8-frame birthday floating walk (with party hat & confetti)
+    for f in range(8):
+        canvas = PixelCanvas()
+        draw_duck_floating(canvas, frame=f, birthday=True)
+        filename = f"duck_birthday_walk_{f}.png"
+        path = os.path.join(OUTPUT_DIR, filename)
+        canvas.save_png(path, scale=SCALE)
+        total_duck += 1
+
+    print(f"Successfully generated {total_dog} dog sprites and {total_duck} duck sprites in {OUTPUT_DIR}")
 
 if __name__ == "__main__":
     generate_all_sprites()

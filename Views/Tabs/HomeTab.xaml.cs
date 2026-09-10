@@ -52,7 +52,6 @@ public partial class HomeTab : WpfControl
     private double _bird2X = -90;
     private double _fireflyTick = 0;
     private int _ambientFrameCount = 0;
-    private CompanionSpecies _currentSpecies = CompanionSpecies.Dog;
 
     public HomeTab(PersistenceService persistence, PopupService popupService, WalkInService walkInService)
     {
@@ -61,11 +60,7 @@ public partial class HomeTab : WpfControl
         _popupService = popupService;
         _walkInService = walkInService;
 
-        var (settings, _) = _persistence.LoadData();
-        _currentSpecies = settings.ActiveCompanion;
-
-        // 1. Preload Companion Sprites
-        LoadCompanionSprites(_currentSpecies);
+        ReloadCompanion();
 
         // 2. Preload Ambient Sprites
         for (int i = 0; i < 2; i++)
@@ -77,11 +72,6 @@ public partial class HomeTab : WpfControl
                 _starFrames[i] = new BitmapImage(new Uri($"pack://application:,,,/Assets/Sprites/star_{i}.png", UriKind.Absolute));
             }
             catch { }
-        }
-
-        if (_idleFrames[0] != null)
-        {
-            ImgHomeDog.Source = _idleFrames[0];
         }
 
         // 3. Live Clock (1-second tick)
@@ -389,22 +379,14 @@ public partial class HomeTab : WpfControl
         }
     }
 
-    public void ReloadCompanionSprites(CompanionSpecies species)
+    public void ReloadCompanion()
     {
-        _currentSpecies = species;
-        LoadCompanionSprites(species);
-        TxtDogReaction.Text = _currentSpecies == CompanionSpecies.Duck
-            ? "Tap me to waddle across your screen! 🦆"
-            : "Tap me to walk across your screen! 🐾";
-    }
-
-    private void LoadCompanionSprites(CompanionSpecies species)
-    {
+        var (settings, _) = _persistence.LoadData();
+        var companion = settings.ActiveCompanion;
         var now = DateTime.Now;
         bool isBirthday = (now.Month == 8 && now.Day == 25);
-        string prefix = species == CompanionSpecies.Duck ? "duck_" : "";
-        string walkPrefix = isBirthday ? $"{prefix}birthday_walk" : $"{prefix}walking";
 
+        var walkPrefix = SpriteVariantExtensions.GetWalkPrefix(companion, isBirthday);
         for (int i = 0; i < 8; i++)
         {
             try
@@ -414,20 +396,41 @@ public partial class HomeTab : WpfControl
             catch { }
         }
 
+        var idlePrefix = SpriteVariant.Idle.GetCompanionPrefix(companion);
+        var foodPrefix = SpriteVariant.Food.GetCompanionPrefix(companion);
+        var restPrefix = SpriteVariant.Rest.GetCompanionPrefix(companion);
+
         for (int i = 0; i < 5; i++)
         {
             try
             {
-                _idleFrames[i] = new BitmapImage(new Uri($"pack://application:,,,/Assets/Sprites/{prefix}idle_{i}.png", UriKind.Absolute));
-                _foodFrames[i] = new BitmapImage(new Uri($"pack://application:,,,/Assets/Sprites/{prefix}food_{i}.png", UriKind.Absolute));
-                _restFrames[i] = new BitmapImage(new Uri($"pack://application:,,,/Assets/Sprites/{prefix}rest_{i}.png", UriKind.Absolute));
+                _idleFrames[i] = new BitmapImage(new Uri($"pack://application:,,,/Assets/Sprites/{idlePrefix}_{i}.png", UriKind.Absolute));
+                _foodFrames[i] = new BitmapImage(new Uri($"pack://application:,,,/Assets/Sprites/{foodPrefix}_{i}.png", UriKind.Absolute));
+                _restFrames[i] = new BitmapImage(new Uri($"pack://application:,,,/Assets/Sprites/{restPrefix}_{i}.png", UriKind.Absolute));
             }
             catch { }
         }
 
-        if (_idleFrames[0] != null && !_isEntranceWalking)
+        if (_idleFrames[0] != null && !_isEntranceWalking && !_isCustomAnimation)
         {
             ImgHomeDog.Source = _idleFrames[0];
+        }
+
+        if (companion == CompanionSpecies.Duck)
+        {
+            BtnFeedDog.Content = "🌾 Feed Duck";
+            BtnPetDog.Content = "❤️ Pet Duck";
+            BtnWalkDog.Content = "🦆 Float Screen";
+            TxtDogReaction.Text = "Tap me to float across your screen! 🦆";
+            DogStageContainer.ToolTip = "Click your duck companion to make it float across your screen!";
+        }
+        else
+        {
+            BtnFeedDog.Content = "🍖 Feed Dog";
+            BtnPetDog.Content = "❤️ Pet / Play";
+            BtnWalkDog.Content = "🚶 Walk Across Screen";
+            TxtDogReaction.Text = "Tap me to walk across your screen! 🐾";
+            DogStageContainer.ToolTip = "Click your dog companion to make it walk across your screen!";
         }
     }
 
@@ -444,8 +447,9 @@ public partial class HomeTab : WpfControl
 
     private void TriggerScreenWalk()
     {
-        TxtDogReaction.Text = _currentSpecies == CompanionSpecies.Duck
-            ? "Waddling across your screen! 🦆💨"
+        var (settings, _) = _persistence.LoadData();
+        TxtDogReaction.Text = settings.ActiveCompanion == CompanionSpecies.Duck
+            ? "Floating across your screen! 🦆🌊"
             : "Walking across your screen! 🐾💨";
         _walkInService.CheckAndTriggerWalkIn(force: true);
 
@@ -455,9 +459,10 @@ public partial class HomeTab : WpfControl
     private void BtnFeedDog_Click(object sender, RoutedEventArgs e)
     {
         _isCustomAnimation = true;
-        TxtDogReaction.Text = _currentSpecies == CompanionSpecies.Duck
-            ? "Peck peck! Yum, delicious seeds! 🌾🦆😋❤️"
-            : "Crunch crunch! Yum, thanks Abhishek! 🍖😋❤️";
+        var (settings, _) = _persistence.LoadData();
+        TxtDogReaction.Text = settings.ActiveCompanion == CompanionSpecies.Duck
+            ? $"Crunch crunch! Delicious seeds, thanks {settings.DisplayName}! 🦆😋❤️"
+            : $"Crunch crunch! Yum, thanks {settings.DisplayName}! 🍖😋❤️";
 
         int frame = 0;
         var feedTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(130) };
@@ -479,8 +484,9 @@ public partial class HomeTab : WpfControl
     private void BtnPetDog_Click(object sender, RoutedEventArgs e)
     {
         _isCustomAnimation = true;
-        TxtDogReaction.Text = _currentSpecies == CompanionSpecies.Duck
-            ? "*happy tail waddle & quacks* Quack quack! 🦆❤️✨"
+        var (settings, _) = _persistence.LoadData();
+        TxtDogReaction.Text = settings.ActiveCompanion == CompanionSpecies.Duck
+            ? "*happy wing flaps & squeaks* Quack! 🦆❤️✨"
             : "*happy tail wags & barks* Woof! 🐶❤️🐾";
 
         int frame = 0;
@@ -507,8 +513,9 @@ public partial class HomeTab : WpfControl
         _resetReactionTimer.Tick += (s, e) =>
         {
             _resetReactionTimer.Stop();
-            TxtDogReaction.Text = _currentSpecies == CompanionSpecies.Duck
-                ? "Tap me to waddle across your screen! 🦆"
+            var (settings, _) = _persistence.LoadData();
+            TxtDogReaction.Text = settings.ActiveCompanion == CompanionSpecies.Duck
+                ? "Tap me to float across your screen! 🦆"
                 : "Tap me to walk across your screen! 🐾";
         };
         _resetReactionTimer.Start();

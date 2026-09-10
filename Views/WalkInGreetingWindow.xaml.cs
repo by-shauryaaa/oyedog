@@ -9,7 +9,6 @@ namespace PixelDogReminders.Views;
 public partial class WalkInGreetingWindow : Window
 {
     private readonly bool _isBirthday;
-    private readonly CompanionSpecies _species;
     private readonly BitmapImage[] _walkFrames = new BitmapImage[8];
     private readonly BitmapImage[] _idleFrames = new BitmapImage[5];
     private readonly BitmapImage[] _foodFrames = new BitmapImage[5];
@@ -23,31 +22,31 @@ public partial class WalkInGreetingWindow : Window
     private bool _isReacting = false;
     private bool _isClosing = false;
 
-    public WalkInGreetingWindow(CompanionSpecies species = CompanionSpecies.Dog)
+    public WalkInGreetingWindow(CompanionSpecies companion = CompanionSpecies.Dog, string displayName = "Abhishek")
     {
         InitializeComponent();
-        _species = species;
 
         var now = DateTime.Now;
         _isBirthday = (now.Month == 8 && now.Day == 25);
 
-        string speciesIcon = _species == CompanionSpecies.Duck ? "🦆" : "🐶";
-
         if (_isBirthday)
         {
-            TxtTitle.Text = $"🎂 BIRTHDAY COMPANION {speciesIcon}";
-            TxtGreeting.Text = "Happy Birthday Abhishek! 🎉";
+            TxtTitle.Text = companion == CompanionSpecies.Duck ? "🎂 BIRTHDAY COMPANION 🦆" : "🎂 BIRTHDAY COMPANION 🐶";
+            TxtGreeting.Text = $"Happy Birthday {displayName}! 🎉";
         }
         else
         {
             TxtTitle.Text = "GOOD MORNING ☀️";
-            TxtGreeting.Text = "Good morning, Abhishek";
+            TxtGreeting.Text = companion == CompanionSpecies.Duck
+                ? $"Quack quack! Good morning, {displayName}! 🦆"
+                : $"Good morning, {displayName}";
         }
 
-        string sPrefix = _species == CompanionSpecies.Duck ? "duck_" : "";
+        BtnFeed.Content = companion == CompanionSpecies.Duck ? "🌾 Feed Duck" : "🍖 Feed";
+        BtnLetItBe.Content = companion == CompanionSpecies.Duck ? "🦆 Let it be" : "🐾 Let it be";
 
-        // 1. Preload 8 walking frames (birthday or standard)
-        var walkPrefix = _isBirthday ? $"{sPrefix}birthday_walk" : $"{sPrefix}walking";
+        // 1. Preload 8 walking / floating frames (birthday or standard)
+        var walkPrefix = SpriteVariantExtensions.GetWalkPrefix(companion, _isBirthday);
         for (int i = 0; i < 8; i++)
         {
             try
@@ -62,13 +61,17 @@ public partial class WalkInGreetingWindow : Window
         }
 
         // 2. Preload 5 idle, food, rest frames
+        var idlePrefix = SpriteVariant.Idle.GetCompanionPrefix(companion);
+        var foodPrefix = SpriteVariant.Food.GetCompanionPrefix(companion);
+        var restPrefix = SpriteVariant.Rest.GetCompanionPrefix(companion);
+
         for (int i = 0; i < 5; i++)
         {
             try
             {
-                _idleFrames[i] = new BitmapImage(new Uri($"pack://application:,,,/Assets/Sprites/{sPrefix}idle_{i}.png", UriKind.Absolute));
-                _foodFrames[i] = new BitmapImage(new Uri($"pack://application:,,,/Assets/Sprites/{sPrefix}food_{i}.png", UriKind.Absolute));
-                _restFrames[i] = new BitmapImage(new Uri($"pack://application:,,,/Assets/Sprites/{sPrefix}rest_{i}.png", UriKind.Absolute));
+                _idleFrames[i] = new BitmapImage(new Uri($"pack://application:,,,/Assets/Sprites/{idlePrefix}_{i}.png", UriKind.Absolute));
+                _foodFrames[i] = new BitmapImage(new Uri($"pack://application:,,,/Assets/Sprites/{foodPrefix}_{i}.png", UriKind.Absolute));
+                _restFrames[i] = new BitmapImage(new Uri($"pack://application:,,,/Assets/Sprites/{restPrefix}_{i}.png", UriKind.Absolute));
             }
             catch
             {
