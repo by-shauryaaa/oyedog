@@ -33,7 +33,8 @@ public class WalkInService
                     _activeWalkInWindow.Close();
                 }
 
-                _activeWalkInWindow = new WalkInGreetingWindow();
+                var (settings, _) = _persistence.LoadData();
+                _activeWalkInWindow = new WalkInGreetingWindow(settings.ActiveCompanion);
                 _activeWalkInWindow.Show();
             }
             catch (Exception ex)

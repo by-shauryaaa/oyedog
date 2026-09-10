@@ -21,8 +21,16 @@ public enum ClassReminderStyle
     Banner
 }
 
+[JsonConverter(typeof(JsonStringEnumConverter))]
+public enum CompanionSpecies
+{
+    Dog,
+    Duck
+}
+
 public class AppSettings
 {
+    public CompanionSpecies ActiveCompanion { get; set; } = CompanionSpecies.Dog;
     public PopupPosition Position { get; set; } = PopupPosition.BottomRight;
     public int SnoozeDurationMinutes { get; set; } = 5;
     public bool MatchRemindersEnabled { get; set; } = true;

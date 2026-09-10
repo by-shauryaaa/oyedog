@@ -81,6 +81,8 @@ public partial class MainWindow : Window
             NavigateTo(NavTarget.Matches);
         };
 
+        var (initSettings, _) = _persistence.LoadData();
+
         // Wire DisplayName changes
         _settingsTab.DisplayNameChanged += (s, newName) =>
         {
@@ -88,18 +90,15 @@ public partial class MainWindow : Window
             _homeTab.UpdateGreeting();
         };
 
-        // 3. Preload sidebar dog sprite frames
-        for (int i = 0; i < 5; i++)
+        // Wire Companion changes
+        _settingsTab.CompanionChanged += (s, newCompanion) =>
         {
-            try
-            {
-                _sidebarDogFrames[i] = new BitmapImage(new Uri($"pack://application:,,,/Assets/Sprites/idle_{i}.png", UriKind.Absolute));
-            }
-            catch
-            {
-                // Fallback
-            }
-        }
+            LoadSidebarCompanionFrames(newCompanion);
+            _homeTab.ReloadCompanionSprites(newCompanion);
+        };
+
+        // 3. Preload sidebar companion sprite frames
+        LoadSidebarCompanionFrames(initSettings.ActiveCompanion);
 
         // 4. Setup Sidebar Timers
         _sidebarSpriteTimer = new DispatcherTimer
@@ -215,6 +214,26 @@ public partial class MainWindow : Window
             PnlDogBadge.BorderBrush = new WpfSolidColorBrush(WpfColor.FromRgb(90, 62, 43));   // #5A3E2B
             PnlDogBadge.Background = new WpfSolidColorBrush(WpfColor.FromRgb(42, 27, 20));    // #2A1B14
             DogFloorShadow.Fill = new WpfSolidColorBrush(WpfColor.FromRgb(30, 18, 10));       // Subtle soft shadow
+        }
+    }
+
+    public void LoadSidebarCompanionFrames(CompanionSpecies species)
+    {
+        string prefix = species == CompanionSpecies.Duck ? "duck_idle" : "idle";
+        for (int i = 0; i < 5; i++)
+        {
+            try
+            {
+                _sidebarDogFrames[i] = new BitmapImage(new Uri($"pack://application:,,,/Assets/Sprites/{prefix}_{i}.png", UriKind.Absolute));
+            }
+            catch
+            {
+                // Fallback
+            }
+        }
+        if (_sidebarDogFrames[0] != null)
+        {
+            SidebarDogSprite.Source = _sidebarDogFrames[0];
         }
     }
 

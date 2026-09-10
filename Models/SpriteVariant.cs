@@ -45,4 +45,32 @@ public static class SpriteVariantExtensions
         SpriteVariant.BirthdayWalk => "Birthday Celebration Walk",
         _ => "Idle"
     };
+
+    public static string ToKey(this SpriteVariant variant, CompanionSpecies species)
+    {
+        string baseKey = variant.ToKey();
+        return species == CompanionSpecies.Duck ? $"duck_{baseKey}" : baseKey;
+    }
+
+    public static string GetSpritePath(this SpriteVariant variant, CompanionSpecies species, int frame)
+    {
+        string key = variant.ToKey(species);
+        return $"pack://application:,,,/Assets/Sprites/{key}_{frame}.png";
+    }
+}
+
+public static class CompanionSpeciesExtensions
+{
+    public static string ToDisplayName(this CompanionSpecies species) => species switch
+    {
+        CompanionSpecies.Dog => "Dogu (Dog)",
+        CompanionSpecies.Duck => "Ducky (Rubber Duck)",
+        _ => "Dogu (Dog)"
+    };
+
+    public static string GetPrefix(this CompanionSpecies species) => species switch
+    {
+        CompanionSpecies.Duck => "duck_",
+        _ => ""
+    };
 }

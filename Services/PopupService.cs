@@ -29,7 +29,7 @@ public class PopupService
                 }
 
                 var (settings, _) = _persistence.LoadData();
-                var popup = new ReminderPopupWindow(title, message, variant, settings.Position);
+                var popup = new ReminderPopupWindow(title, message, variant, settings.Position, settings.ActiveCompanion);
                 _activePopup = popup;
 
                 popup.SnoozeClicked += (s, e) =>

@@ -15,6 +15,19 @@
   - 🌙 **Night**: Twinkling star sparkles and glowing fireflies floating in gentle sine waves.
 - **De-Boxed Floating Greeting**: Dynamic time-aware greetings floating directly over the scenery with crisp pixel drop shadow contrast.
 
+### 🐕 & 🦆 Swappable Companions: Dogu & Ducky
+- **Choose Your Pet**: Switch seamlessly between **Dogu (Loyal Puppy)** and **Ducky (Iconic Rubber Duck)** anytime in Settings.
+- **Native 256×256 High-Fidelity Sprites**: Ducky is rendered with smooth curves, glossy rubber specular sheens, and vibrant yellow/orange hues.
+- **Full Matching Sprite Variants**: Both pets feature matching 5-frame and 8-frame animations across the entire app:
+  - `idle`: Gentle breathing, tail wag / bob, cute blinking.
+  - `walking`: Dogu strides across the lawn; Ducky waddles side-to-side on orange paddle feet.
+  - `water` & `food`: Crunching treats vs pecking seeds beside a water bowl.
+  - `sleep`: Curved shut eyes with floating animated `Z z Z`.
+  - `rest`: Playful stretches and wing flaps.
+  - `barca` & `f1`: Blaugrana team colors and racing gear.
+  - `birthday_walk`: Bilateral stroll wearing a festive party hat surrounded by floating confetti.
+- **Global Presence**: The active companion updates instantly everywhere — sidebar habitat, interactive Home walk-in, reminder popups, and morning screen strolls.
+
 ### 🐕 Walk-to-Center Companion Entrance & Contextual Actions
 - **Dynamic Entrance**: Visiting Home triggers Dogu to walk across the lawn from left to center using an 8-frame walk cycle.
 - **Contextual Radial Menu**: Once centered, interactive pet-care action buttons pop into place with bouncy spring animations:

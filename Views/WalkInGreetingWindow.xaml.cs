@@ -2,12 +2,14 @@ using System.Windows;
 using System.Windows.Media.Animation;
 using System.Windows.Media.Imaging;
 using System.Windows.Threading;
+using PixelDogReminders.Models;
 
 namespace PixelDogReminders.Views;
 
 public partial class WalkInGreetingWindow : Window
 {
     private readonly bool _isBirthday;
+    private readonly CompanionSpecies _species;
     private readonly BitmapImage[] _walkFrames = new BitmapImage[8];
     private readonly BitmapImage[] _idleFrames = new BitmapImage[5];
     private readonly BitmapImage[] _foodFrames = new BitmapImage[5];
@@ -21,16 +23,19 @@ public partial class WalkInGreetingWindow : Window
     private bool _isReacting = false;
     private bool _isClosing = false;
 
-    public WalkInGreetingWindow()
+    public WalkInGreetingWindow(CompanionSpecies species = CompanionSpecies.Dog)
     {
         InitializeComponent();
+        _species = species;
 
         var now = DateTime.Now;
         _isBirthday = (now.Month == 8 && now.Day == 25);
 
+        string speciesIcon = _species == CompanionSpecies.Duck ? "🦆" : "🐶";
+
         if (_isBirthday)
         {
-            TxtTitle.Text = "🎂 BIRTHDAY COMPANION 🐶";
+            TxtTitle.Text = $"🎂 BIRTHDAY COMPANION {speciesIcon}";
             TxtGreeting.Text = "Happy Birthday Abhishek! 🎉";
         }
         else
@@ -39,8 +44,10 @@ public partial class WalkInGreetingWindow : Window
             TxtGreeting.Text = "Good morning, Abhishek";
         }
 
+        string sPrefix = _species == CompanionSpecies.Duck ? "duck_" : "";
+
         // 1. Preload 8 walking frames (birthday or standard)
-        var walkPrefix = _isBirthday ? "birthday_walk" : "walking";
+        var walkPrefix = _isBirthday ? $"{sPrefix}birthday_walk" : $"{sPrefix}walking";
         for (int i = 0; i < 8; i++)
         {
             try
@@ -59,9 +66,9 @@ public partial class WalkInGreetingWindow : Window
         {
             try
             {
-                _idleFrames[i] = new BitmapImage(new Uri($"pack://application:,,,/Assets/Sprites/idle_{i}.png", UriKind.Absolute));
-                _foodFrames[i] = new BitmapImage(new Uri($"pack://application:,,,/Assets/Sprites/food_{i}.png", UriKind.Absolute));
-                _restFrames[i] = new BitmapImage(new Uri($"pack://application:,,,/Assets/Sprites/rest_{i}.png", UriKind.Absolute));
+                _idleFrames[i] = new BitmapImage(new Uri($"pack://application:,,,/Assets/Sprites/{sPrefix}idle_{i}.png", UriKind.Absolute));
+                _foodFrames[i] = new BitmapImage(new Uri($"pack://application:,,,/Assets/Sprites/{sPrefix}food_{i}.png", UriKind.Absolute));
+                _restFrames[i] = new BitmapImage(new Uri($"pack://application:,,,/Assets/Sprites/{sPrefix}rest_{i}.png", UriKind.Absolute));
             }
             catch
             {

@@ -535,7 +535,13 @@ def generate_all_sprites():
         canvas.save_png(path, scale=SCALE)
         total += 1
 
-    print(f"Successfully generated {total} sprite frames in {OUTPUT_DIR}")
+    print(f"Successfully generated {total} dog sprite frames in {OUTPUT_DIR}")
+    
+    try:
+        from render_duck import generate_all_duck_sprites
+        generate_all_duck_sprites()
+    except Exception as e:
+        print(f"Note: Could not generate duck sprites: {e}")
 
 if __name__ == "__main__":
     generate_all_sprites()

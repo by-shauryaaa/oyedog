@@ -52,6 +52,7 @@ public partial class HomeTab : WpfControl
     private double _bird2X = -90;
     private double _fireflyTick = 0;
     private int _ambientFrameCount = 0;
+    private CompanionSpecies _currentSpecies = CompanionSpecies.Dog;
 
     public HomeTab(PersistenceService persistence, PopupService popupService, WalkInService walkInService)
     {
@@ -60,30 +61,11 @@ public partial class HomeTab : WpfControl
         _popupService = popupService;
         _walkInService = walkInService;
 
-        var now = DateTime.Now;
-        bool isBirthday = (now.Month == 8 && now.Day == 25);
+        var (settings, _) = _persistence.LoadData();
+        _currentSpecies = settings.ActiveCompanion;
 
-        // 1. Preload Dog Sprites
-        var walkPrefix = isBirthday ? "birthday_walk" : "walking";
-        for (int i = 0; i < 8; i++)
-        {
-            try
-            {
-                _walkFrames[i] = new BitmapImage(new Uri($"pack://application:,,,/Assets/Sprites/{walkPrefix}_{i}.png", UriKind.Absolute));
-            }
-            catch { }
-        }
-
-        for (int i = 0; i < 5; i++)
-        {
-            try
-            {
-                _idleFrames[i] = new BitmapImage(new Uri($"pack://application:,,,/Assets/Sprites/idle_{i}.png", UriKind.Absolute));
-                _foodFrames[i] = new BitmapImage(new Uri($"pack://application:,,,/Assets/Sprites/food_{i}.png", UriKind.Absolute));
-                _restFrames[i] = new BitmapImage(new Uri($"pack://application:,,,/Assets/Sprites/rest_{i}.png", UriKind.Absolute));
-            }
-            catch { }
-        }
+        // 1. Preload Companion Sprites
+        LoadCompanionSprites(_currentSpecies);
 
         // 2. Preload Ambient Sprites
         for (int i = 0; i < 2; i++)
@@ -407,6 +389,48 @@ public partial class HomeTab : WpfControl
         }
     }
 
+    public void ReloadCompanionSprites(CompanionSpecies species)
+    {
+        _currentSpecies = species;
+        LoadCompanionSprites(species);
+        TxtDogReaction.Text = _currentSpecies == CompanionSpecies.Duck
+            ? "Tap me to waddle across your screen! 🦆"
+            : "Tap me to walk across your screen! 🐾";
+    }
+
+    private void LoadCompanionSprites(CompanionSpecies species)
+    {
+        var now = DateTime.Now;
+        bool isBirthday = (now.Month == 8 && now.Day == 25);
+        string prefix = species == CompanionSpecies.Duck ? "duck_" : "";
+        string walkPrefix = isBirthday ? $"{prefix}birthday_walk" : $"{prefix}walking";
+
+        for (int i = 0; i < 8; i++)
+        {
+            try
+            {
+                _walkFrames[i] = new BitmapImage(new Uri($"pack://application:,,,/Assets/Sprites/{walkPrefix}_{i}.png", UriKind.Absolute));
+            }
+            catch { }
+        }
+
+        for (int i = 0; i < 5; i++)
+        {
+            try
+            {
+                _idleFrames[i] = new BitmapImage(new Uri($"pack://application:,,,/Assets/Sprites/{prefix}idle_{i}.png", UriKind.Absolute));
+                _foodFrames[i] = new BitmapImage(new Uri($"pack://application:,,,/Assets/Sprites/{prefix}food_{i}.png", UriKind.Absolute));
+                _restFrames[i] = new BitmapImage(new Uri($"pack://application:,,,/Assets/Sprites/{prefix}rest_{i}.png", UriKind.Absolute));
+            }
+            catch { }
+        }
+
+        if (_idleFrames[0] != null && !_isEntranceWalking)
+        {
+            ImgHomeDog.Source = _idleFrames[0];
+        }
+    }
+
     // Tapping the dog triggers screen walk
     private void DogSprite_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
     {
@@ -420,7 +444,9 @@ public partial class HomeTab : WpfControl
 
     private void TriggerScreenWalk()
     {
-        TxtDogReaction.Text = "Walking across your screen! 🐾💨";
+        TxtDogReaction.Text = _currentSpecies == CompanionSpecies.Duck
+            ? "Waddling across your screen! 🦆💨"
+            : "Walking across your screen! 🐾💨";
         _walkInService.CheckAndTriggerWalkIn(force: true);
 
         ResetReactionTextAfter(3);
@@ -429,7 +455,9 @@ public partial class HomeTab : WpfControl
     private void BtnFeedDog_Click(object sender, RoutedEventArgs e)
     {
         _isCustomAnimation = true;
-        TxtDogReaction.Text = "Crunch crunch! Yum, thanks Abhishek! 🍖😋❤️";
+        TxtDogReaction.Text = _currentSpecies == CompanionSpecies.Duck
+            ? "Peck peck! Yum, delicious seeds! 🌾🦆😋❤️"
+            : "Crunch crunch! Yum, thanks Abhishek! 🍖😋❤️";
 
         int frame = 0;
         var feedTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(130) };
@@ -451,7 +479,9 @@ public partial class HomeTab : WpfControl
     private void BtnPetDog_Click(object sender, RoutedEventArgs e)
     {
         _isCustomAnimation = true;
-        TxtDogReaction.Text = "*happy tail wags & barks* Woof! 🐶❤️🐾";
+        TxtDogReaction.Text = _currentSpecies == CompanionSpecies.Duck
+            ? "*happy tail waddle & quacks* Quack quack! 🦆❤️✨"
+            : "*happy tail wags & barks* Woof! 🐶❤️🐾";
 
         int frame = 0;
         var petTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(100) };
@@ -477,7 +507,9 @@ public partial class HomeTab : WpfControl
         _resetReactionTimer.Tick += (s, e) =>
         {
             _resetReactionTimer.Stop();
-            TxtDogReaction.Text = "Tap me to walk across your screen! 🐾";
+            TxtDogReaction.Text = _currentSpecies == CompanionSpecies.Duck
+                ? "Tap me to waddle across your screen! 🦆"
+                : "Tap me to walk across your screen! 🐾";
         };
         _resetReactionTimer.Start();
     }

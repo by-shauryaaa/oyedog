@@ -348,4 +348,29 @@ public class AppTests
             if (File.Exists(tempFile)) File.Delete(tempFile);
         }
     }
+
+    [Fact]
+    public void AppSettings_DefaultCompanion_ShouldBeDog()
+    {
+        var settings = new AppSettings();
+        Assert.Equal(CompanionSpecies.Dog, settings.ActiveCompanion);
+    }
+
+    [Fact]
+    public void SpriteVariant_ToKey_WithDuckSpecies_ShouldHaveDuckPrefix()
+    {
+        Assert.Equal("idle", SpriteVariant.Idle.ToKey(CompanionSpecies.Dog));
+        Assert.Equal("duck_idle", SpriteVariant.Idle.ToKey(CompanionSpecies.Duck));
+        Assert.Equal("duck_walking", SpriteVariant.Walking.ToKey(CompanionSpecies.Duck));
+        Assert.Equal("duck_birthday_walk", SpriteVariant.BirthdayWalk.ToKey(CompanionSpecies.Duck));
+        Assert.Equal("duck_water", SpriteVariant.Water.ToKey(CompanionSpecies.Duck));
+        Assert.Equal("duck_food", SpriteVariant.Food.ToKey(CompanionSpecies.Duck));
+    }
+
+    [Fact]
+    public void CompanionSpecies_ToDisplayName_ShouldReturnExpectedNames()
+    {
+        Assert.Contains("Dog", CompanionSpecies.Dog.ToDisplayName());
+        Assert.Contains("Duck", CompanionSpecies.Duck.ToDisplayName());
+    }
 }
